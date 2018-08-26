@@ -1,0 +1,13 @@
+
+
+historial de puestos del tecnologico {
+    id
+    id_docente
+    id_periodo 
+    rol
+     
+}
+
+
+
+BC vs Procedimiento
