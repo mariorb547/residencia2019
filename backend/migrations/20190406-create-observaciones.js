@@ -8,37 +8,27 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_proyecto: {
+      id_tarea: {
         type: Sequelize.INTEGER,
         allowNull: false,
         onDelete: 'CASCADE',
         references: {
-          model: 'Proyectos',
+          model: 'tareas',
           key: 'id',
-          as: 'id_proyecto'
-        }
-      },
-      id_asesor_interno: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        onDelete: 'CASCADE',
-        references: {
-          model: 'Docentes',
-          key: 'id',
-          as: 'id_asesor_interno'
+          as: 'id_tarea'
         }
       },
       observacion: {
         type: Sequelize.STRING(500)
       },
-      solucionada: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-      },
-      tipo: {
+      tipo_observacion: {
         type: Sequelize.ENUM,
         allowNull: false,
-        values: ['plan_de_trabajo', 'cronograma']
+        values: ['plan_de_trabajo', 'revision_semanal','revision_mensual']
+      },
+      estado: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,

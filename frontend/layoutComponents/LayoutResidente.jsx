@@ -79,6 +79,7 @@ export default class LayoutResidente extends Component {
                 this.getDatosCandidato(usuario.id_alumno);
                 axios.get(`/api/alumno/${usuario.id_alumno}/_proyecto`)
                     .then(res => {
+                       
                         if (res.status === 200) {
                             this.setState({
                                 proyecto: res.data,
@@ -94,13 +95,16 @@ export default class LayoutResidente extends Component {
                             this.setState({ isAuth: false })
                         }
                     }).catch(err => {
+                       
                         axios.get(`/api/alumno/${usuario.id_alumno}/cancelacion`)
                             .then(res => {
                                 if (res.status === 200) {
                                     this.setState({
                                         cancelacion: res.data
                                     })
+                                    
                                 }
+                                
                             })
                     })
             } else {
@@ -140,7 +144,9 @@ export default class LayoutResidente extends Component {
         if (key == 1) { 
             axios.get(`/api/alumno/${usuario.id_alumno}/_proyecto`)
                 .then(res => {
+                    
                     if (res.status === 200) {
+                        console.log(res.data);
                         this.setState({
                             componentSelected: key,
                             visibleCambiarContrasenia: false,
@@ -277,7 +283,10 @@ export default class LayoutResidente extends Component {
                         </Header>
                         <Content style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
                             {componentRender.render}
+                            
+                           
                             {proyecto ? null : <div>
+                               
                                 <Alert message="Residente, usted no tiene proyecto, probablemente hubo una cancelación ó su anteproyecto no fue factible, para mas información preguntar al presidente de academia o jefe de departamento." type="error" showIcon />
                                 {cancelacion === null ? null :
                                     <div>

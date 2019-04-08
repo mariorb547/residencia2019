@@ -5,29 +5,25 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(500),
       allowNull: false,
     },
-    solucionada: {
+    tipo_observacion: {
+      type: DataTypes.ENUM,
+      allowNull: false,
+      values: ['plan_de_trabajo','revision_semanal','revision_mensual']
+    },
+    estado: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
     },
-    tipo: {
-      type: DataTypes.ENUM,
-      allowNull: false,
-      values: ['plan_de_trabajo','cronograma']
-    }
   });
 
   observaciones.associate = (models) => {
-    observaciones.belongsTo(models.Proyecto, {
-      foreignKey: 'id_proyecto',
+    observaciones.belongsTo(models.tareas, {
+      foreignKey: 'id_tareas',
       onDelete: 'CASCADE',
-      as: 'proyecto'
+      as: 'tareas'
     });
-    observaciones.belongsTo(models.Docente, {
-      foreignKey: 'id_asesor_interno',
-      onDelete: 'CASCADE',
-      as: 'asesor_interno'
-    });
+    
   }
   return observaciones;
 };

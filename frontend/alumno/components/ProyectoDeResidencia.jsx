@@ -6,12 +6,15 @@ const { Item } = Form;
 // components
 import WrappedFormPlanTrabajo from '../../periodo_residencia/plan_trabajo.jsx';
 import WrappedCronograma from '../../periodo_residencia/cronograma.jsx';
+import FormAddActividadGeneral from './FormAddActividadGeneral.jsx';
+
 
 export default class ProyectoDeResidencia extends Component{
     constructor(props){
         super(props);
         this.state = {
-            proyecto: props.proyecto
+            proyecto: props.proyecto,
+            visibleRegistrarActividadGeneral:false
         }
     }
     componentWillReceiveProps(nextProps) {
@@ -19,9 +22,13 @@ export default class ProyectoDeResidencia extends Component{
             proyecto: nextProps.proyecto
         })
     }
-    
+    showAddActividadGeneral= () => {
+        this.setState({
+            visibleRegistrarActividadGeneral: true
+        })
+    }
     render(){
-        const {proyecto} = this.state;
+        const {proyecto,visibleRegistrarActividadGeneral} = this.state;
         console.log('proyecto => ', this.state.proyecto)
         return (
             <div>
@@ -38,58 +45,46 @@ export default class ProyectoDeResidencia extends Component{
                     <a style={{color: '#4da1ff'}} href={`/api/alumno/${proyecto.anteproyecto.id_alumno}/CartaPresentacion.docx`} target="_blank"> Carta de presentacion y agradecimientos     <Icon type="file-word" style={{color: '#4da1ff'}}/></a>
                     <a style={{color: '#4da1ff'}} href={`/api/anteproyecto/pdf/${proyecto.anteproyecto.path_file_anteproyecto}`} target="_blank"> Ver anteproyecto <Icon type="file-pdf" style={{color: '#4da1ff'}}  /></a>
                     </Item>
-                    <Item label="Documentos de prorroga">
-                    <a style={{color: '#C22121'}} href={`/api/solicitud/${proyecto.anteproyecto.id_alumno}/solicitud_prorroga.docx`} target="_blank"> Solicitud de prorroga <Icon type="file-word" style={{color: '#4da1ff'}}  /></a>
-                    <a style={{color: '#C22121'}} href={`/api/solicitud/${proyecto.anteproyecto.id_alumno}/oficio_prorroga.docx`} target="_blank"> Oficio de prorroga <Icon type="file-word" style={{color: '#4da1ff'}}  /></a>
-                    </Item>
+                    
                 </Form>
                 {/* divider */}
                 <Row className="border-top">
                     <Col xs={24} lg={24}>
-                        <h2 style={{marginBottom: 20}}>Plan de trabajo</h2>
-                        <a style={{color: '#4da1ff'}} href="/plantillas/plan_de_trabajo.docx">Plantilla de plan de trabajo <Icon type="cloud-download"/></a>
-                    </Col>
-                    <Col xs={24} lg={12}>
-                        <WrappedFormPlanTrabajo proyecto={proyecto}/>
-                    </Col>
-                    <Col xs={24} lg={12} >
+                        <p style={{marginBottom: 20}}>Plan de trabajo</p>
+                        <Col xs={24} lg={4}>
+                         <a style={{color: '#4da1ff'}} href="/plantillas/plan_de_trabajo.docx">Plantilla de plan de trabajo <Icon type="cloud-download"/></a>
+                         </Col> 
+                        <Col xs={24} lg={4}>
+                        <Button icon="plus" type="primary" onClick={this.showAddActividadGeneral}>Registrar plan de trabajo</Button>
+                        </Col>
+                        <Col xs={24} lg={4}>
+                        <Button icon="edit" type="primary">Modificar plan de trabajo</Button>
+                        </Col>
+                        <Col xs={24} lg={12} >
                         <p style={{marginLeft: 40, marginBottom: 15}}>Observaciones del plan de trabajo</p>
                             <Timeline className="center-block" style={{marginLeft: 40,overflow: 'scroll', height: 180, paddingLeft: 20, paddingTop: 20}}>
-                                {proyecto.observaciones.filter(obs => obs.tipo==='plan_de_trabajo').map((observacion, index) => {
-                                        return (
-                                            <Timeline.Item key={index} color={observacion.solucionada? 'green' : 'red'}  dot={observacion.solucionada ? <Icon   type="check-circle-o"/> : <Icon type="clock-circle-o" style={{ fontSize: '16px' }}/> }>
-                                                {observacion.observacion} 
-                                            </Timeline.Item>
-                                        )
-                                    }
-                                )}
+                               
                             </Timeline>
                     </Col>
+                    </Col>
+                    
                 </Row>
                 <Row className="border-top">
 
                     <Col xs={24} lg={24}>
-                        <h2 style={{marginBottom: 20}}>Cronograma</h2>
-                        <a style={{color: '#4da1ff'}} href="/plantillas/cronograma.docx">Plantilla de cronograma de actividades <Icon type="cloud-download"/></a>
+                    <p style={{marginBottom: 20}}>Cronograma de actividades</p>
+                        <a style={{color: '#4da1ff'}} href="/plantillas/cronograma.docx">Generar cronograma de actividades <Icon type="cloud-download"/></a>
                     </Col>
-                    <Col xs={24} lg={12}>
-                        <WrappedCronograma proyecto={proyecto}/>
-                    </Col>
-                    <Col xs={24} lg={12} >
-                        <p style={{marginLeft: 40, marginBottom: 15}}>Observaciones del cronograma de actividades</p>
-                            <Timeline className="center-block" style={{marginLeft: 40,overflow: 'scroll', height: 180, paddingLeft: 20, paddingTop: 20}}>
-                                {proyecto.observaciones.filter(obs => obs.tipo==='cronograma').map((observacion, index) => {
-                                        return (
-                                            <Timeline.Item key={index} color={observacion.solucionada? 'green' : 'red'}  dot={observacion.solucionada ? <Icon   type="check-circle-o"/> : <Icon type="clock-circle-o" style={{ fontSize: '16px' }}/> }>
-                                                {observacion.observacion} 
-                                            </Timeline.Item>
-                                        )
-                                    }
-                                )}
-                            </Timeline>
-                    </Col>
+                    
                 </Row>
-
+                <Row className="border-top">
+                    <Item label="Documentos de prorroga">
+                        <a style={{color: '#C22121'}} href={`/api/solicitud/${proyecto.anteproyecto.id_alumno}/solicitud_prorroga.docx`} target="_blank"> Solicitud de prorroga <Icon type="file-word" style={{color: '#4da1ff'}}  /></a>
+                        <a style={{color: '#C22121'}} href={`/api/solicitud/${proyecto.anteproyecto.id_alumno}/oficio_prorroga.docx`} target="_blank"> Oficio de prorroga <Icon type="file-word" style={{color: '#4da1ff'}}  /></a>
+                    </Item>
+                </Row>
+                <FormAddActividadGeneral visible={visibleRegistrarActividadGeneral}/>
+                
             </div>
         )
     }

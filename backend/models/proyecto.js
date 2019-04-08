@@ -49,10 +49,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'id_proyecto',
       as: 'seguimientos_proyecto'
     })
-    Proyecto.hasMany(models.observaciones, {
-      foreignKey: 'id_proyecto',
-      as: 'observaciones'
-    })
+   
     Proyecto.belongsTo(models.evaluacion, {
       foreignKey: 'id_evaluacion_asesor_interno',
       as: 'evaluacion_asesor_interno'

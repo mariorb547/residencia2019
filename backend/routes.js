@@ -20,6 +20,8 @@ const puestoContrller = require('./controllers/puesto');
 const TituloController = require('./controllers/TituloController');
 const ColoniaController = require('./controllers/ColoniaController');
 const FolioController = require('./controllers/FolioController');
+const PlanDeTrabajoController = require('./controllers/PlanDeTrabajoController');
+
 module.exports =  (app, express, passport) => {
    
     const router = express.Router();
@@ -580,7 +582,8 @@ module.exports =  (app, express, passport) => {
     router.route('/periodo/:id_periodo/proyectos')
         .get(isAuth, periodoController.getProyectos);
 
-
+    router.route('/plan_de_trabajo/actividad_general')
+        .post(isAuth, isResidente, PlanDeTrabajoController.addActividadGeneral)
 
         
     app.use('/api', router);
