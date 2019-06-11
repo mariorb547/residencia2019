@@ -21,6 +21,7 @@ const TituloController = require('./controllers/TituloController');
 const ColoniaController = require('./controllers/ColoniaController');
 const FolioController = require('./controllers/FolioController');
 const PlanDeTrabajoController = require('./controllers/PlanDeTrabajoController');
+const RevisionSemanalController = require('./controllers/RevisionSemanalController');
 
 module.exports =  (app, express, passport) => {
    
@@ -43,6 +44,8 @@ module.exports =  (app, express, passport) => {
 
     router.route('/usuario/foto/:id')
           .get(isAuth,usuarioController.getFotoUser)
+    router.route('/usuario/foto_residente/:ruta')
+          .get(isAuth,usuarioController.getFotoResidentes)
 
     // DEPARTAMENTO
     router.route('/departamento')
@@ -382,7 +385,7 @@ module.exports =  (app, express, passport) => {
         .post(isAuth, isResidente, alumnoController.addFilePlanTrabajo)
 
     router.route('/plan_de_trabajo/pdf/:filename')
-        .get(isAuth, isJefeDeptoOrDocenteOrResidente, alumnoController.getPlanDeTrabajoPDF)
+        .get(isAuth, alumnoController.getPlanDeTrabajoPDF)
 
     router.route('/alumno/cronograma/:id_proyecto')
         .post(isAuth, isResidente, alumnoController.addCronograma)
@@ -406,10 +409,19 @@ module.exports =  (app, express, passport) => {
     router.route('/proyectos/empresa/:id')
         .get(isAuth, proyectoController.getProyectosByEmpresa)  
 
-    router.route('/proyecto/observacion')
-        .post(isAuth, isJefeDeptoOrDocente, proyectoController.addObservacion)
-        .put(isAuth, isJefeDeptoOrDocente, proyectoController.updateObservacion)
+  
+    router.route('/proyecto/onChange_observacion_alumno')
+    .put(isAuth, PlanDeTrabajoController.updateObservacionAlumno)
 
+        router.route('/proyecto/observacion')
+        .post(isAuth,  PlanDeTrabajoController.addObservacion)
+        .put(isAuth, PlanDeTrabajoController.updateObservacion)
+       
+    router.route('/proyecto/updateEstadoTareaAddObservacionPlan')
+         .put(isAuth, PlanDeTrabajoController.updateEstadoTareaAddObservacionPlan)
+
+        
+        
     router.route('/proyecto/:id_proyecto/observaciones')
         .get(isAuth, proyectoController.findObservaciones)
 
@@ -583,9 +595,125 @@ module.exports =  (app, express, passport) => {
         .get(isAuth, periodoController.getProyectos);
 
     router.route('/plan_de_trabajo/actividad_general')
-        .post(isAuth, isResidente, PlanDeTrabajoController.addActividadGeneral)
-
+        .post(isAuth, isResidente, PlanDeTrabajoController.addActividadGeneral);
         
+    router.route('/plan_de_trabajo/update_actividad_general')
+        .post(isAuth, isResidente, PlanDeTrabajoController.updateActividadGeneral);
+        
+    router.route('/plan_de_trabajo/addSubactividad')
+    .post(isAuth, isResidente, PlanDeTrabajoController.addSubactividad);
+    
+    router.route('/plan_de_trabajo/update_subactividad')
+    .post(isAuth, isResidente, PlanDeTrabajoController.updateSubactividad);
+
+    router.route('/plan_de_trabajo/addTarea')
+    .post(isAuth, isResidente, PlanDeTrabajoController.addTarea);
+
+    router.route('/plan_de_trabajo/update_tarea')
+    .post(isAuth, isResidente, PlanDeTrabajoController.updateTarea);
+ 
+    router.route('/plan_de_trabajo/:id/get_plan_de_trabajo')
+    .get(isAuth,PlanDeTrabajoController.getPlanDeTrabajo);
+
+    router.route('/plan_de_trabajo/:id/generar_plan_de_trabajo')
+    .get(isAuth,PlanDeTrabajoController.generarPlanTrabajo);
+
+    router.route('/plan_de_trabajo/:id/get_cronograma')
+    .get(isAuth,PlanDeTrabajoController.getCronograma);
+
+    router.route('/plan_de_trabajo/:id_proyecto/get_actividad_general')
+        .get(isAuth,PlanDeTrabajoController.findPlanDeTrabajoAlumno);
+
+    router.route('/plan_de_trabajo/:id_subactividad/get_subactividades')
+        .get(isAuth,PlanDeTrabajoController.findAllSubActividades);
+    
+    router.route('/plan_de_trabajo/:id_subactividad/get_tareas')
+        .get(isAuth,PlanDeTrabajoController.findAllTareas);
+    
+    router.route('/revision_semanal/:id_proyecto/get_tareas_completas')
+        .get(isAuth,RevisionSemanalController.findTareaCompleta);
+    
+       
+    router.route('/plan_de_trabajo/:id_tarea/:tipo_observacion/get_observaciones')
+        .get(isAuth,PlanDeTrabajoController.findAllObservaciones);
+    
+    router.route('/plan_de_trabajo/delete_actividad_general')
+        .post(isAuth, isResidente,PlanDeTrabajoController.deleteActividadGeneral);
+
+     
+    router.route('/plan_de_trabajo/delete_subactividad')
+        .post(isAuth, isResidente,PlanDeTrabajoController.deleteSubactividad);
+    
+    router.route('/plan_de_trabajo/delete_tarea')
+        .post(isAuth, isResidente,PlanDeTrabajoController.deleteTarea);
+
+    router.route('/plan_de_trabajo/up_actividad_general')
+        .post(isAuth, isResidente,PlanDeTrabajoController.upActividadGeneral);
+       
+    router.route('/plan_de_trabajo/recorrer_subactividad')
+        .post(isAuth, isResidente,PlanDeTrabajoController.recorrerSubactividad);
+    
+    router.route('/plan_de_trabajo/recorrer_tarea')
+        .post(isAuth, isResidente,PlanDeTrabajoController.recorrerTarea);
+       
+    router.route('/plan_de_trabajo/update_estado_tarea')
+        .post(isAuth,PlanDeTrabajoController.updateEstadoTarea);
+    
+    router.route('/plan_de_trabajo/notificacion_observaciones_plan')
+        .post(isAuth,PlanDeTrabajoController.notificacionObservacionesPlan);
+     
+    
+    router.route('/alumno/file_evidencia/:id_tarea')
+        .post(isAuth, isResidente, RevisionSemanalController.addFileEvidencia)
+    
+    router.route('/alumno/file_formato_semanal/:id_proyecto/:semana')
+        .post(isAuth, RevisionSemanalController.addFileFormatoSemanal)
+
+
+    router.route('/alumno/update_file_evidencia/:id_evidencia')
+        .post(isAuth, isResidente, RevisionSemanalController.updateFileEvidencia)
+
+    router.route('/alumno/getPlan_revision_semanal/:id')
+        .get(isAuth, RevisionSemanalController.getPlanDeTrabajo)
+    
+    router.route('/revision_semanal/get_evidencia/:filename')
+        .get(isAuth, RevisionSemanalController.getEvidencia)
+       
+    router.route('/revision_semanal/get_evidencia_update/:id')
+        .get(isAuth, RevisionSemanalController.getEvidenciaUpdate)
+    
+    router.route('/revision_semanal/get_formato_semanal/:id_proyecto/:semana')
+        .get(isAuth, RevisionSemanalController.getFormatoSemanal)
+
+    router.route('/revision_semanal/:id_proyecto/formato_semanal_adjuntado')
+        .get(isAuth, RevisionSemanalController.formato_semanal_adjuntado)
+
+
+    router.route('/revision_semanal/notificacion_correo')
+        .post(isAuth,RevisionSemanalController.notificacionCorreo);
+
+    router.route('/revision_semanal/updateEstadoTareaAddObservacion')
+         .put(isAuth, RevisionSemanalController.updateEstadoTareaAddObservacion)
+
+    router.route('/revision_semanal/update_estado_tarea')
+         .post(isAuth,RevisionSemanalController.updateEstadoTarea);
+    
+    router.route('/revision_semanal/:id/:numero_semana/generar_formato_revision')
+         .get(isAuth,RevisionSemanalController.generarFormatoRevision);
+     
+    router.route('/seguimientos/obtener_seguimientos/:id_periodo')
+         .get(isAuth,SeguimientoController.obtenerSeguimientos)
+
+    router.route('/revision_mensual/updateEstadoTareaAddObservacion')
+         .put(isAuth, SeguimientoController.updateEstadoTareaAddObservacion)
+
+    router.route('/seguimiento/onChange_observacion')
+         .put(isAuth, SeguimientoController.updateEstadoObservacion)
+     
+
+
+       
+
     app.use('/api', router);
      // Redirect trafict to react app
      app.get('*', (req, res) => {

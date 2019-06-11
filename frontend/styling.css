@@ -10,6 +10,18 @@ input[type=mayuscula]
 .textarea{
     text-transform: uppercase;
 }
+.ant-table-content-rojo {
+  background: rgb(255, 158, 129);
+
+ }
+ .ant-table-content-verde {
+  background: rgb(152, 251, 152);
+
+ }
+ .ant-table-content-gris {
+  background: rgb(188, 195, 202);
+
+ }
 .grises img {
 
         -webkit-filter: grayscale(0%);

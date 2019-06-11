@@ -8,6 +8,7 @@ import axios from 'axios';
 
 //components
 import FormAddObservacionSeguimiento from '../docente/components/FormAddObservacionSeguimiento.jsx';
+import WrappedFormSeguimiento from './FormSeguimiento.jsx';
 
 export default class RevisionProyecto extends Component {
     constructor(props) {
@@ -17,6 +18,8 @@ export default class RevisionProyecto extends Component {
             usuario: props.usuario,
             id_seguimiento: -1,
             visible_observacion: false,
+            renderSeguimiento:null,
+            seguimiento_selecionado:null
 
         }
     }
@@ -72,10 +75,31 @@ export default class RevisionProyecto extends Component {
 
     }
     changeSeguimiento = (id_seguimiento) => {
-        this.setState({
-            id_seguimiento,
-            visible_observacion: false
+        alert("id_se "+id_seguimiento)
+        axios.get(`/api/seguimientos/obtener_seguimientos/${this.state.proyecto.anteproyecto.id_periodo}`).then(res =>{
+
+            if(res.status === 200){
+                let contadorSeguimiento=0
+                let numeroSeguimiento=0
+                var seguimiento_selecionado=null
+                res.data.map((seguimiento)=>{
+                  
+                    //se comparan los seguimientos para saber la posion del seguimiento selecionado
+                    if(id_seguimiento==seguimiento.id){
+                        numeroSeguimiento=contadorSeguimiento
+                        seguimiento_selecionado=seguimiento
+                    }
+                    contadorSeguimiento++
+                    
+                })
+                this.setState({
+                    renderSeguimiento: <WrappedFormSeguimiento proyecto={this.state.proyecto} seguimiento={seguimiento_selecionado} seguimientos={res.data} numeroSeguimiento={numeroSeguimiento} usuario={this.state.usuario}/>,
+                    id_seguimiento,
+                    visible_observacion: false,
+                })
+            }             
         })
+       
     }
     showAddObservacionSeguimiento = () => {
         this.setState({
@@ -162,22 +186,26 @@ export default class RevisionProyecto extends Component {
         console.log(situacionResitente[0].idalumno)
         var estadoActual= situacionResitente[0].estado;
 
-        const observacionesPlanTrabajo = proyecto.observaciones.filter(obs => obs.tipo === 'plan_de_trabajo').map((observacion) => {
+       {/*  const observacionesPlanTrabajo = proyecto.observaciones.filter(obs => obs.tipo === 'plan_de_trabajo').map((observacion) => {
             return {
                 key: uuid.v1(),
-                id: observacion.id,
-                observacion: observacion.observacion,
-                solucionada: observacion.solucionada
+              
             }
-        })
+             id: observacion.id,
+                observacion: observacion.observacion,
+               solucionada: observacion.solucionada
+        })*/}
+         {/*
         const observacionesCronograma = proyecto.observaciones.filter(obs => obs.tipo === 'cronograma').map((observacion) => {
             return {
                 key: uuid.v1(),
+                
+            }
+           
                 id: observacion.id,
                 observacion: observacion.observacion,
                 solucionada: observacion.solucionada
-            }
-        })
+        })*/}
         const _asesorias = proyecto.asesorias.map((asesoria) => {
             return {
                 key: uuid.v1(),
@@ -274,13 +302,8 @@ export default class RevisionProyecto extends Component {
                 render: (text, record) => (
                     <p>{`${record.docente.titulo} ${record.docente.nombre} ${record.docente.ap_paterno} ${record.docente.ap_materno}`}</p>
                 )
-            },
-            {
-                className: 'center-text',
-                title: 'Observación',
-                dataIndex: 'observacion',
-                key: 'observacion',
             }
+
         ]
         return (
             <Tabs style={{ marginTop: 30 }} key=".103." defaultActiveKey="1">
@@ -326,8 +349,8 @@ export default class RevisionProyecto extends Component {
                             </Item>
                         </Col>
                         <Col xs={24} lg={18}>
-                            <Table title={() => 'Observaciones de plan de trabajo'} columns={columnsPlanTrabajo} dataSource={observacionesPlanTrabajo} pagination={{ pageSize: 4 }} />
-                        </Col>
+                           {/* <Table title={() => 'Observaciones de plan de trabajo'} columns={columnsPlanTrabajo} dataSource={observacionesPlanTrabajo} pagination={{ pageSize: 4 }} />
+                        */}</Col>
                     </Row>
                     <Row className="border-top">
                         <Col xs={24} lg={6} >
@@ -352,8 +375,8 @@ export default class RevisionProyecto extends Component {
                             </Item>
                         </Col>
                         <Col xs={24} lg={18}>
-                            <Table title={() => 'Observaciones del cronograma de actividades'} columns={columnsPlanTrabajo} dataSource={observacionesCronograma} pagination={{ pageSize: 4 }} />
-                        </Col>
+                            {/*<Table title={() => 'Observaciones del cronograma de actividades'} columns={columnsPlanTrabajo} dataSource={observacionesCronograma} pagination={{ pageSize: 4 }} />
+                        */}</Col>
                     </Row>
                 </TabPane>
                 <TabPane tab={<span><Icon type="solution" />Asesorías</span>} key="asesorias">
@@ -364,73 +387,24 @@ export default class RevisionProyecto extends Component {
                     </Row>
                 </TabPane>
                 <TabPane tab={<span><Icon type="calendar" />Seguimientos</span>} key="seguimientos">
-                    <Tabs key="-99" tabPosition="left" defaultActiveKey="-1" onChange={(id) => this.changeSeguimiento(id)}>
+                    <Tabs key="-99" tabPosition="left" defaultActiveKey="-1" onChange={(id_seguimiento) => this.changeSeguimiento(id_seguimiento)}>
 
                         {proyecto.seguimientos_proyecto.map(((seguimiento, index) => {
-                            console.log('')
+                            console.log('seguimiento  '+seguimiento)
 
                             return (
-                                <TabPane tab={<span><Icon type="schedule" />{`Seguimiento ${index + 1}`}</span>} key={seguimiento.id}>
-                                    {currentDate >= seguimiento.seguimiento.fecha_inicial && currentDate <= seguimiento.seguimiento.fecha_final
-                                        ?
-
-                                        <Row>
-                                            {/* {(seguimiento.estado_seguimiento === 'no cumplio'  ? auxEstadoEntrante += 1 : numeroDeCumplidos+=1)} */}
-                                            <Col xs={24} lg={24} style={{ marginTop: 20, marginBottom: 30 }}>
-                                                {seguimiento.url_seguimiento ?
-                                                    <div>
-                                                        <p>Link del seguimiento: </p>
-                                                        <Upload
-                                                            defaultFileList={
-                                                                [{
-                                                                    uid: -2,
-                                                                    name: 'Seguimiento',
-                                                                    status: 'done',
-                                                                    url: seguimiento.url_seguimiento
-                                                                }]
-                                                            }
-                                                        />
-                                                    </div>
-                                                    :
-                                                    <Alert message="El alumno no ha subido su seguimiento" type="warning" showIcon />
-                                                }
-                                            </Col>
-                                            <Col xs={24} lg={24} >
-                                                <Button type="primary" icon="plus" onClick={() => this.showAddObservacionSeguimiento()}>Agregar observación</Button>
-                                                {
-
-                                                    seguimiento.url_seguimiento ? <Switch style={{ left: 200 }} checkedChildren='Cumplio objetivo' defaultChecked={(seguimiento.estado_seguimiento === 'cumplio') ? true : false} unCheckedChildren="No Cumple objetivo" onChange={(checked) => this.handleSeguimiento(seguimiento.id, checked)} /> : 'Al no haber sibido el seguimiento el residente, en automatico el sistema lo califica como no cumplido'
-
-                                                }
-                                                <Table title={() => 'Observaciones del seguimiento'} columns={columnsObservacionesSeguimiento} dataSource={observacionesSeguimiento} pagination={{ pageSize: 4 }} />
-                                            </Col>
-                                            <FormAddObservacionSeguimiento updateProyecto={this.updateProyecto.bind(this)} updateSeguimientos={() => console.log('()')} usuario={usuario} visible={visible_observacion} id_seguimiento={id_seguimiento} />
-                                        </Row>
-                                        :
-                                        <Alert message={`No puede acceder al seguimiento,\n Fecha inicial: ${moment(seguimiento.seguimiento.fecha_inicial, 'YYYY-MM-DD').format('LL')} - Fecha final: ${moment(seguimiento.seguimiento.fecha_final, 'YYYY-MM-DD').format('LL')}`} type="warning" showIcon />
-
-                                    }
-
+                                <TabPane tab={<span><Icon type="schedule" />{`Seguimiento ${index + 1}`}</span>} key={seguimiento.id_seguimiento}>
+                                    
+                                    {this.state.renderSeguimiento}
                                 </TabPane>
                             )
-                        }
-
-                        ))
-                            //    ( auxEstadoEntrante>0?this.handleVerificacion(situacionResitente[0].idalumno,'no cumplio'):'')
+                         }))
                         }
 
 
 
                     </Tabs>
-                   {/* {
-                        numeroDeSeguimientos>1?'':auxParaAbandonoDeProyecto+=1
-                    } */}
-                    {/* {
-
-
-                        (auxEstadoEntrante > 0 ? estadoActual=this.handleVerificacion(situacionResitente[0].idalumno,estadoActual)
-                            : '')
-                    }  */}
+                 
                    
                 </TabPane>
             </Tabs>

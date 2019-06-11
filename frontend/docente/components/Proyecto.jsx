@@ -10,7 +10,8 @@ const { Option } = Select
 import FormAddObservacion from '../components/FormAddObservacion.jsx';
 import FormAddSolucion from '../components/FormAddSolucion.jsx';
 import RevisionSeguimiento from '../components/RevisionSeguimiento.jsx'
-import FormEvaluacion from '../components/FormEvaluacion.jsx';
+import RevisionSemanalDocente from '../components/RevisionSemanalDocente.jsx';
+import FormPlanDeTrabajo from '../components/FormPlanDeTrabajo.jsx';
 export default class Proyecto extends Component {
 
     constructor(props) {
@@ -27,7 +28,9 @@ export default class Proyecto extends Component {
             id_asesoria: null,
             renderSeguimiento: null,
             visibleEvaluacionAsesorInterno: false,
-            criterios_evaluacion: []
+            criterios_evaluacion: [],
+            nombre: null,
+            visiblePlanDeTrabajo:false
         }
     }
     componentWillReceiveProps(nextProps) {
@@ -43,27 +46,16 @@ export default class Proyecto extends Component {
             seguimientos: [],
             renderSeguimiento: null,
             visibleEvaluacionAsesorInterno: false,
+            visiblePlanDeTrabajo:false
         })
     }
     componentWillMount() {
-        this.updateObservaciones();
+      
     }
-    updateObservaciones = () => {
-        const { proyecto } = this.state;
-        axios.get(`/api/proyecto/${proyecto.id}/observaciones`)
-            .then(res => {
-
-                if (res.status === 200) {
-                    // console.warn('=>', res.data)
-                    this.setState({
-                        visibleAddObservacion: false,
-                        visibleAddSolucion: false,
-                        visibleEvaluacionAsesorInterno: false,
-                        observaciones: res.data
-                    })
-                }
-            })
+    componentDidMount(){
+        this.datosDocente();
     }
+    
     showAgregarObservacionPlanTrabajo = () => {
         const { proyecto } = this.state;
         this.setState({
@@ -141,12 +133,49 @@ export default class Proyecto extends Component {
                             visibleAddSolucion: false,
                             visibleEvaluacionAsesorInterno: false,
                             seguimientos: res.data,
+                            nombre: res.data.proyecto.alumno.no_control
                         })
                     }
                 })
+        }else if(key==="revisionSemanal"){
+            
+           {/* axios.get(`/api/proyecto/${proyecto.id}/seguimientos`)
+                .then(res => {
+                    if (res.status === 200) {
+                        // console.warn('a>', res.data);
+                        this.setState({
+                            visibleAddObservacion: false,
+                            visibleAddSolucion: false,
+                            visibleEvaluacionAsesorInterno: false,
+                            nombre: res.data.proyecto.anteproyecto.alumno.no_control,
+                        })
+                    }
+                })*/}
+
         }
 
     }
+
+
+    datosDocente = () =>{
+        const {usuario} = this.state;
+        axios.get(`/api/docente/informacion/${usuario.id}`).then(res => {
+
+            this.setState({
+                nombre: res.data.titulo + "" + res.data.nombre + " " + res.data.ap_paterno + " " + res.data.ap_materno,
+            })
+
+        })
+        
+    }
+
+    datosEmpresa= () =>{
+
+        const { proyecto} = this.state;
+        console.log(proyecto.anteproyecto);
+    }
+     //alert(proyecto.anteproyecto.alumno.no_control+" nombre "+proyecto.anteproyecto.alumno.nombre +" " +proyecto.anteproyecto.alumno.ap_paterno+" "+proyecto.anteproyecto.alumno.ap_materno+" proyecto "+ proyecto.anteproyecto.nombre+
+        //" empresa "+ nombre + "empresa"+ proyecto.anteproyecto.asesor_externo.nombre);
     updateSeguimientos = () => {
         const { proyecto } = this.state;
         axios.get(`/api/proyecto/${proyecto.id}/seguimientos`)
@@ -250,6 +279,7 @@ export default class Proyecto extends Component {
             }
         })
     }
+  
     showEvaluacionAsesorInterno = (alumno) => {
         if (alumno.plan_estudios === '2009-2010') {
             axios.get('/api/proyecto/evaluacionAnexoIII/criterios/asesor_interno/')
@@ -319,8 +349,13 @@ export default class Proyecto extends Component {
             }
         })
     }
+    showPlan=()=>{
+        this.setState({
+            visiblePlanDeTrabajo:true
+        })
+    }
     render() {
-        const { criterios_evaluacion, visibleEvaluacionAsesorInterno, proyecto, visibleAddObservacion, tipo_observacion, usuario, observaciones, asesorias, id_asesoria, visibleAddSolucion, seguimientos, renderSeguimiento } = this.state
+        const { nombre,criterios_evaluacion, visibleEvaluacionAsesorInterno, proyecto, visibleAddObservacion, tipo_observacion, usuario, observaciones, asesorias, id_asesoria, visibleAddSolucion, seguimientos, renderSeguimiento } = this.state
         var numeroDeNoCumplidos = 0;
         var SituacionDelResidente=proyecto.anteproyecto.alumno.situacion[0].estado,idResidente= proyecto.anteproyecto.alumno.id;
         console.log(SituacionDelResidente+"--"+idResidente)
@@ -464,69 +499,22 @@ export default class Proyecto extends Component {
                         </Form>
                         <Row className="border-top">
                             <Col xs={24} lg={6} >
-                                <h2 style={{ marginBottom: 20 }}>Plan de trabajo</h2>
-                                <Item label={(
-                                    <span>
-                                        Plan de trabajo&nbsp;
-                                            <Tooltip title={`Ultima fecha de actualización: ${moment(proyecto.updatedAt).utc().format('ll')}`}>
-                                            <Icon type="clock-circle-o" />
-                                        </Tooltip>
-                                    </span>
-                                )}>
-                                    <Upload
-                                        className="file-preview"
-                                        style={{ width: 600 }}
-                                        listType="picture-card"
-                                        fileList={[{
-                                            uid: -1,
-                                            name: 'plan_de_trabajo.pdf',
-                                            status: 'done',
-                                            url: `/api/plan_de_trabajo/pdf/${proyecto.filename_plan_trabajo}`
-                                        }]}
-                                    />
-                                </Item>
+                            
+                             <Button type="primary" onClick={this.showPlan}>Plan de trabajo</Button>
+
+                                
                             </Col>
-                            <Col xs={24} lg={18}>
-                                <Button style={{ marginBottom: 10, marginTop: 45 }} icon="plus" onClick={this.showAgregarObservacionPlanTrabajo}>Agregar observación</Button>
-                                <Table title={() => 'Observaciones de plan de trabajo'} columns={columnsPlanTrabajo} dataSource={observacionesPlanTrabajo} pagination={{ pageSize: 4 }} />
-                            </Col>
+                           
                         </Row>
                         <Row className="border-top">
-                            <Col xs={24} lg={6} >
-                                <h2 style={{ marginBottom: 20 }}>Cronograma de actividades</h2>
-                                <Item label={(
-                                    <span>
-                                        Cronograma de actividades&nbsp;
-                                            <Tooltip title={`Ultima fecha de actualización: ${moment(proyecto.updatedAt).utc().format('ll')}`}>
-                                            <Icon type="clock-circle-o" />
-                                        </Tooltip>
-                                    </span>
-                                )}>
-                                    <Upload
-                                        className="file-preview"
-                                        style={{ width: 600 }}
-                                        listType="picture-card"
-                                        fileList={[{
-                                            uid: -1,
-                                            name: 'cronograma.pdf',
-                                            status: 'done',
-                                            url: `/api/cronograma/pdf/${proyecto.filename_cronograma}`
-                                        }]}
-                                        onRemove={false}
-                                    />
-                                </Item>
-                            </Col>
-                            <Col xs={24} lg={18}>
-                                <Button style={{ marginBottom: 10, marginTop: 45 }} icon="plus" onClick={this.showAgregarObservacionCronograma}>Agregar observación</Button>
-                                <Table title={() => 'Observaciones del cronograma de actividades'} columns={columnsPlanTrabajo} dataSource={observacionesCronograma} pagination={{ pageSize: 4 }} />
+                            <Col xs={24} lg={24}>
+                                 <a  href={`/api/plan_de_trabajo/${this.state.proyecto.id}/get_cronograma`} target="_blank"><Button icon="file-pdf" disabled={this.state.disabledDescargarPlan} type="primary">Generar cronograma de actividades</Button></a>
                             </Col>
                         </Row>
                     </TabPane>
-                    <TabPane tab={<span><Icon type="solution" />Asesorías</span>} key="asesorias">
+                    <TabPane tab={<span><Icon type="solution" />Revisión semanal</span>} key="revisionSemanal">
                         <Row>
-                            <Col xs={24} lg={24}>
-                                <Table title={() => 'Asesorías'} columns={columnsAsesorias} dataSource={_asesorias} pagination={{ pageSize: 5 }} scroll={{ x: 1200 }} />
-                            </Col>
+                            <RevisionSemanalDocente proyecto={this.state.proyecto} usuario={this.state.usuario} nombre_asesor_interno={this.state.nombre}/>
                         </Row>
                     </TabPane>
                     <TabPane tab={<span><Icon type="calendar" />Seguimientos</span>} key="seguimientos">
@@ -588,10 +576,9 @@ export default class Proyecto extends Component {
                         </Tabs>
                     </TabPane>
                 </Tabs>
-                <FormAddObservacion updateObservaciones={this.updateObservaciones.bind(this)} id_proyecto={proyecto.id} tipo={tipo_observacion} usuario={usuario} visible={visibleAddObservacion} />
-                <FormAddSolucion id_asesoria={id_asesoria} visible={visibleAddSolucion} />
-                <FormEvaluacion updateProyecto={this.updateProyecto.bind(this)} proyecto={proyecto} visible={visibleEvaluacionAsesorInterno} criterios_evaluacion={criterios_evaluacion} />
+                <FormPlanDeTrabajo  visible={this.state.visiblePlanDeTrabajo} proyecto={this.state.proyecto}  usuario={this.state.usuario} nombre_asesor_interno={this.state.nombre}/>
 
+                
             </div>
         )
     }

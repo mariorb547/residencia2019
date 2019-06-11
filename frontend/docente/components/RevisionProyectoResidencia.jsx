@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {Select, Row, Col, Spin} from 'antd';
+import {Select, Row, Col, Spin,Avatar,img,Table} from 'antd';
 const {Option} = Select
 
 import axios from 'axios';
@@ -17,7 +17,9 @@ export default class RevisionProyectoResidencia extends Component{
             renderProyecto: null,
             id_proyecto: null,
             spin: false,
+            dataFotos:[]
         }
+        this.getImagen()
     }
     componentWillReceiveProps(nextProps){
         this.setState({
@@ -28,7 +30,10 @@ export default class RevisionProyectoResidencia extends Component{
             spin: false,
         })
     }
+    componentDidMount=()=>{
+        this.getImagen()
     
+    }
 
     onChangeResidente = (id_proyecto) => {
         this.setState({spin: true, renderProyecto: null})
@@ -41,6 +46,7 @@ export default class RevisionProyectoResidencia extends Component{
                         id_proyecto,
                         spin: false,
                     })
+        
                 }
             })
     }
@@ -59,28 +65,68 @@ export default class RevisionProyectoResidencia extends Component{
             }
         })
     }
+    getImagen = () => {
+       
+        var fotos=[]
+        this.state.proyectos.map((proyecto)=>{
+              axios.get(`/api/usuario/foto/${proyecto.anteproyecto.alumno.usuario.id}`)
+            .then(res => {
+                  fotos.push(
+                           { key: uuid.v1(),id:proyecto.anteproyecto.alumno.usuario.id,url:res.data}
+                            
+                            )
+                         this.setState({
+                             dataFotos:fotos
+                         })
+                
+            })
+        })
+       
+    }
 
+    //metodo para filtrar la imagen del residente
+    URLFoto=(id)=>{
+       
+    var url
+     this.state.dataFotos.map((foto)=>{
+         if(foto.id===id){
+            
+              url=foto.url
+         }
+     })
+    return url
+
+    }
     
     render(){
         const {proyectos, renderProyecto, spin} = this.state
+       
+         
         // console.warn(')>', proye)
         return (
             <Row>
+               
                 <Col xs={24} lg={24}>
                     <Select 
                         showSearch
                         optionFilterProp="children"
+                        
                         filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         placeholder="Seleccione al residente"
                         onChange={this.onChangeResidente}
-                        style={{width: 400}}
+                        style={{width:400}}
+                        size={"large"}
+                                         
                     >
                         {proyectos.map((proyecto, index) => {
                             return (
-                                <Option key={index} value={`${proyecto.id}`}>{`${proyecto.anteproyecto.alumno.no_control} - ${proyecto.anteproyecto.alumno.nombre} ${proyecto.anteproyecto.alumno.ap_paterno} ${proyecto.anteproyecto.alumno.ap_materno}`}</Option>
+                                <Option  key={index} value={`${proyecto.id}`}> 
+                                        <Avatar alt="logo_tec" style={{ textAlign: 'center' }}  src={`data:image/[png|gif|jpg|jpeg]; base64,${this.URLFoto(proyecto.anteproyecto.alumno.usuario.id)}`}  />
+                                 {`${proyecto.anteproyecto.alumno.no_control} - ${proyecto.anteproyecto.alumno.nombre} ${proyecto.anteproyecto.alumno.ap_paterno} ${proyecto.anteproyecto.alumno.ap_materno}`}</Option>
                             )
                         })}
                     </Select>
+                    
                 </Col>
                 <Col xs={24} lg={24} style={{marginTop: 25}}>
                     <Row>

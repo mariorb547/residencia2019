@@ -85,7 +85,11 @@ module.exports.addCronograma = (req, res) => {
                     .then(_proyecto => {
                         // borramos el archivo del plan de trabajo si ya tiene uno
                         if (_proyecto.filename_cronograma) {
-                            fs.unlink(`./storeFiles/cronogramas/${_proyecto.filename_cronograma}`);
+                            fs.unlink(`./storeFiles/cronogramas/${_proyecto.filename_cronograma}`, function (err) {
+                                if (err) throw err;
+                                console.log('File deleted!');
+                              });
+                           
                         }
                         return Proyecto.update({ filename_cronograma: req.file.filename }, { where: { id: id_proyecto } }, { transaction: t });
                     })
@@ -104,6 +108,7 @@ module.exports.addCronograma = (req, res) => {
         }
     })
 }
+
 module.exports.addFilePlanTrabajo = (req, res) => {
     const id_proyecto = req.params.id_proyecto;
     uploadFilePlanTrabajo(req, res, err => {
@@ -115,8 +120,15 @@ module.exports.addFilePlanTrabajo = (req, res) => {
                 return Proyecto.findOne({ where: { id: id_proyecto } }, { transaction: t })
                     .then(_proyecto => {
                         // borramos el archivo del plan de trabajo si ya tiene uno
+                       console.log("----<-<--<-<-<--<FIne mane.<<-<-<-<-<--<-< "+_proyecto.filename_plan_trabajo)
                         if (_proyecto.filename_plan_trabajo) {
-                            fs.unlink(`./storeFiles/planes_de_trabajo/${_proyecto.filename_plan_trabajo}`);
+                            var filename = './storeFiles/planes_de_trabajo/'+_proyecto.filename_plan_trabajo;
+                            var tempFile = fs.openSync(filename, 'r');
+                            //try commenting out the following line to see the different behavior
+                            fs.closeSync(tempFile);
+                            
+                            fs.unlinkSync(filename);
+                           // fs.unlink(`./storeFiles/planes_de_trabajo/${_proyecto.filename_plan_trabajo}`);
                         }
                         return Proyecto.update({ filename_plan_trabajo: req.file.filename }, { where: { id: id_proyecto } }, { transaction: t });
                     })
@@ -135,6 +147,8 @@ module.exports.addFilePlanTrabajo = (req, res) => {
         }
     })
 }
+
+
 
 module.exports.addFileAnteproyecto = (req, res) => {
     const id_anteproyecto = req.params.id_anteproyecto;
@@ -528,7 +542,7 @@ module.exports.get_Proyecto = (req, res) => {
                 // console.log('========>', _anteproyecto)
                 return Proyecto.findOrCreate({
                     where: { id_anteproyecto: _anteproyecto.id },
-                    include: [{ model: seguimiento_proyecto, as: 'seguimientos_proyecto', include: [{ model: Seguimiento, as: 'seguimiento' }, { model: revision_seguimiento, as: 'revisiones_seguimiento', include: [{ model: Docente, as: 'docente' }] }] }, { model: Asesoria, as: 'asesorias', include: { model: solucion_recomendada, as: 'soluciones_recomendadas' } }, { model: Anteproyecto, as: 'anteproyecto', include: [{ model: revision_anteproyecto, as: 'revisiones', include: [{ model: Docente, as: 'docente' }] },{ model: Alumno, as: 'alumno' }, { model: Periodo, as: 'periodo' }, { model: asesor_externo, as: 'asesor_externo' }] }],
+                    include: [{ model: seguimiento_proyecto, as: 'seguimientos_proyecto', include: [{ model: Seguimiento, as: 'seguimiento' }, { model: revision_seguimiento, as: 'revisiones_seguimiento', include: [{ model: Docente, as: 'docente' }] }] }, { model: Asesoria, as: 'asesorias', include: { model: solucion_recomendada, as: 'soluciones_recomendadas' } }, { model: Anteproyecto, as: 'anteproyecto', include: [{ model: revision_anteproyecto, as: 'revisiones', include: [{ model: Docente, as: 'docente' }] },{ model: Alumno, as: 'alumno' }, { model: Periodo, as: 'periodo' }, { model: asesor_externo, as: 'asesor_externo' },{model:Docente , as: "asesor_interno" ,include:[{model:Usuario , as: 'usuario'}]}] }],
                     transaction: t
                 }).spread((proyecto_find, created) => {
                     if (created) {
@@ -623,7 +637,7 @@ module.exports.getProyectoAsesorInterno = (req, res) => {
     // console.log('AQUINOMAS');
     Proyecto.findOne({
         where: { id: id_proyecto },
-        include: [{ model: evaluacion, as: 'evaluacion_asesor_interno', include: [{ model: criterio_evaluacion, as: 'criterios_de_evaluacion', include: [{ model: criterio, as: 'ref_criterio' }] }] }, { model: seguimiento_proyecto, as: 'seguimientos_proyecto', include: [{ model: evaluacion, as: 'evaluacion_asesor_interno', include: [{ model: criterio_evaluacion, as: 'criterios_de_evaluacion', include: [{ model: criterio, as: 'ref_criterio' }] }] }, { model: Seguimiento, as: 'seguimiento' }, { model: revision_seguimiento, as: 'revisiones_seguimiento', include: [{ model: Docente, as: 'docente' }] }] }, { model: Asesoria, as: 'asesorias', include: { model: solucion_recomendada, as: 'soluciones_recomendadas' } }, { model: observaciones, as: 'observaciones' }, { model: Anteproyecto, as: 'anteproyecto', include: [{ model: Alumno, as: 'alumno', include: [{ model: situacion, as: 'situacion' }] }, { model: Periodo, as: 'periodo' }] }]
+        include: [{ model: evaluacion, as: 'evaluacion_asesor_interno', include: [{ model: criterio_evaluacion, as: 'criterios_de_evaluacion', include: [{ model: criterio, as: 'ref_criterio' }] }] }, { model: seguimiento_proyecto, as: 'seguimientos_proyecto', include: [{ model: evaluacion, as: 'evaluacion_asesor_interno', include: [{ model: criterio_evaluacion, as: 'criterios_de_evaluacion', include: [{ model: criterio, as: 'ref_criterio' }] }] }, { model: Seguimiento, as: 'seguimiento' }, { model: revision_seguimiento, as: 'revisiones_seguimiento', include: [{ model: Docente, as: 'docente' }] }] }, { model: Asesoria, as: 'asesorias', include: { model: solucion_recomendada, as: 'soluciones_recomendadas' } }, { model: Anteproyecto, as: 'anteproyecto', include: [{ model: Alumno, as: 'alumno', include: [{ model: situacion, as: 'situacion' },{model:Usuario, as:'usuario'}] }, { model: Periodo, as: 'periodo',include: [{model: Carrera, as: 'carrera', include: [{model: Departamento, as: 'departamento', include: [{model: Docente, as: 'docentes', include: [{model: Usuario, as: 'usuario', where: {rol: 'jefe_departamento'} }]  }]}]}] }] }]
     }).then(_proyecto => {
         res.status(200).json(_proyecto)
     }).catch(Sequelize.ValidationError, (err) => {
@@ -643,7 +657,7 @@ module.exports.getProyectoRevisionSeguimientos = (req, res) => {
     // console.log('AQUINOMAS');
     Proyecto.findOne({
         where: { id_anteproyecto },
-        include: [{ model: seguimiento_proyecto, as: 'seguimientos_proyecto', include: [{ model: Seguimiento, as: 'seguimiento' }, { model: revision_seguimiento, as: 'revisiones_seguimiento', include: [{ model: Docente, as: 'docente' }] }] }, { model: Asesoria, as: 'asesorias', include: { model: solucion_recomendada, as: 'soluciones_recomendadas' } }, { model: observaciones, as: 'observaciones' }, { model: Anteproyecto, as: 'anteproyecto', include: [{ model: Alumno, as: 'alumno', include: [{ model: situacion, as: 'situacion' }] }, { model: Periodo, as: 'periodo' }] }]
+        include: [{ model: seguimiento_proyecto, as: 'seguimientos_proyecto', include: [{ model: Seguimiento, as: 'seguimiento' }, { model: revision_seguimiento, as: 'revisiones_seguimiento', include: [{ model: Docente, as: 'docente' }] }] }, { model: Asesoria, as: 'asesorias', include: { model: solucion_recomendada, as: 'soluciones_recomendadas' } }, { model: Anteproyecto, as: 'anteproyecto', include: [{ model: Alumno, as: 'alumno', include: [{ model: situacion, as: 'situacion' }] }, { model: Periodo, as: 'periodo' }] }]
     }).then(_proyecto => {
         res.status(200).json(_proyecto)
     }).catch(Sequelize.ValidationError, (err) => {

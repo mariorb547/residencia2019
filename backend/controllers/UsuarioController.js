@@ -116,7 +116,7 @@ module.exports.isAuth = (req, res) => {
 		if(req.user.rol === rol.JEFE_DEPARTAMENTO|| req.user.rol === rol.ENCARGADO || req.user.rol === rol.DOCENTE || req.user.rol==='subdirector_academico'){
 			// Buscar el docente
 			const id_usuario = req.user.id;
-			Docente.findOne({where: {id_usuario}, include: [{model: docente_carreras, as: 'docente_carrera' } , {model: Departamento, as: 'departamento_doce' }] })
+			Docente.findOne({where: {id_usuario}, include: [{model: docente_carreras, as: 'docente_carrera' } , {model: Departamento, as: 'departamento_doce' },{model:Usuario ,as:'usuario'}] })
 
 			// Docente.findOne({where: {id_usuario}, include: [{model: docente_carreras, as: 'docente_carrera' },{ model:docente_oficinas, as: 'docente_oficina', include:[{model:oficina, as:'oficina'}] }, {model: Departamento, as: 'departamento_doce' }] })
 				.then((docente) => {
@@ -128,7 +128,7 @@ module.exports.isAuth = (req, res) => {
 						res.status(200).json({isAuth: true, rol: req.user.rol,id:id_usuario, id_docente: docente.id,docente_carrera: docente.docente_carrera, id_departamento: docente.id_departamento, nombredepartamento:docente.departamento_doce.nombre });	
 					}			
 					else{
-						res.status(200).json({isAuth: true, rol: req.user.rol,id:id_usuario, id_docente: docente.id,docente_carrera: docente.docente_carrera, id_departamento: docente.id_departamento});	
+						res.status(200).json({isAuth: true, rol: req.user.rol,id:id_usuario,correo:docente.usuario.correo, id_docente: docente.id,docente_carrera: docente.docente_carrera, id_departamento: docente.id_departamento});	
 					}
 			
 				}).catch(err => {
@@ -239,12 +239,30 @@ module.exports.getFotoUser = (req, res) => {
 		var imagen = fs.readFileSync(ruta_foto);
 		res.contentType("application/image"	);
 		res.send(new Buffer(imagen).toString('base64'));
+		
+
 	}).catch(err => {
 		console.log(err)
 		res.status(203).json({err});
 	})
  
 }
+module.exports.getFotoResidentes = (req, res) => {
+	const ruta=  req.params.ruta;
+	
+		
+	 
+		
+		const ruta_foto = path.join(__dirname, `../../storeFiles/usuarios/${ruta}`)
+		var imagen = fs.readFileSync(ruta_foto);
+		res.contentType("application/image"	);
+		res.send(new Buffer(imagen).toString('base64'));
+		
+		
+
+ 
+}
+
 module.exports.addFoto = (req, res) => {
     const id_usuario =  req.params.id;
     uploadFoto(req, res, (err => {

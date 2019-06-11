@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   var subactividades = sequelize.define('subactividades', {
     id_orden:{
-      type: DataTypes.STRING(10),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     actividad: {
@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   subactividades.associate = (models) => {
-    subactividades.belongsTo(models.actividad_general, {
+    subactividades.belongsTo(models.actividades_generales, {
       foreignKey: 'id_actividad_general',
       onDelete: 'CASCADE',
       as: 'actividad_general'

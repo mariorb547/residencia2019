@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Icon, Form, Input, Button, Row, Col, Timeline} from 'antd';
+import { Icon, Form, Input, Button, Row, Col, Popover,Modal} from 'antd';
 import axios from 'axios';
 import moment from 'moment';
 const { Item } = Form;
@@ -7,6 +7,13 @@ const { Item } = Form;
 import WrappedFormPlanTrabajo from '../../periodo_residencia/plan_trabajo.jsx';
 import WrappedCronograma from '../../periodo_residencia/cronograma.jsx';
 import FormAddActividadGeneral from './FormAddActividadGeneral.jsx';
+import FormPlanDeTrabajo from './FormPlanDeTrabajo.jsx';
+
+const content = (
+    <div>
+      <p>El plan de trabajo debe contener las firmas correspondientes</p>
+    </div>
+  );
 
 
 export default class ProyectoDeResidencia extends Component{
@@ -14,22 +21,99 @@ export default class ProyectoDeResidencia extends Component{
         super(props);
         this.state = {
             proyecto: props.proyecto,
-            visibleRegistrarActividadGeneral:false
+            usuario:props.usuario,
+            visibleRegistrarActividadGeneral:false,
+            visiblePlanDeTrabajo:false,
+            disabledDescargarPlan:false,
+            visibleAdjuntarPlan:false
+           
         }
     }
     componentWillReceiveProps(nextProps) {
         this.setState({
-            proyecto: nextProps.proyecto
+            proyecto: nextProps.proyecto,
+            usuario:nextProps.usuario
         })
+       
+
     }
+    componentDidMount(){ 
+        this.statusPlanDeTrabajo()    
+       }
+      
     showAddActividadGeneral= () => {
         this.setState({
-            visibleRegistrarActividadGeneral: true
+            visibleRegistrarActividadGeneral: true,
+            visiblePlanDeTrabajo: false
         })
     }
+
+    showPlanDeTrabajo= () => {
+        this.setState({
+            visiblePlanDeTrabajo: true,
+            visibleRegistrarActividadGeneral: false
+        })
+    }
+
+    obtenerSubactividades=()=>{
+
+    }
+       
+    
+    statusPlanDeTrabajo=()=>{
+     
+        axios.get(`/api/plan_de_trabajo/${this.state.proyecto.id}/get_actividad_general`)
+        .then(res =>{
+            if(res.status === 200){
+                //si el plan de tbajo esta vacio 
+                if(res.data.length==0){ 
+                    this.setState({
+                        disabledDescargarPlan:true
+                    })
+                }
+                    res.data.map((actividad)=>{
+                        actividad.subactividades.map((subactividad)=>{
+                            subactividad.tareas.map((tarea)=>{
+                                
+                                if(tarea.estado_revision_plan!=="aprobado"){
+                                    
+                                    this.setState({
+                                        disabledDescargarPlan:true
+                                    })
+                                }
+                            })
+                        })
+                    })
+                
+               
+            }
+        })
+        
+    }
+
+    generarPlanDeTrabajo =()=>{
+        axios.get(`/api/plan_de_trabajo/${this.state.proyecto.id}/get_plan_de_trabajo`)
+        .then(res =>{
+            if(res.status === 200){
+              
+            }
+        })
+    }
+   visibleAdjuntarPlan=()=>{
+      this.setState({
+          visibleAdjuntarPlan:true
+      })
+      
+   }
+   handleCancel = ()=> {
+    
+    this.setState({
+      visibleAdjuntarPlan: false
+    })
+   }
     render(){
-        const {proyecto,visibleRegistrarActividadGeneral} = this.state;
-        console.log('proyecto => ', this.state.proyecto)
+        const {proyecto,visibleRegistrarActividadGeneral,visiblePlanDeTrabajo} = this.state;
+        
         return (
             <div>
                 <Form>
@@ -52,28 +136,33 @@ export default class ProyectoDeResidencia extends Component{
                     <Col xs={24} lg={24}>
                         <p style={{marginBottom: 20}}>Plan de trabajo</p>
                         <Col xs={24} lg={4}>
-                         <a style={{color: '#4da1ff'}} href="/plantillas/plan_de_trabajo.docx">Plantilla de plan de trabajo <Icon type="cloud-download"/></a>
+                             <a style={{color: '#4da1ff'}} href="/plantillas/plan_de_trabajo.docx">Plantilla de plan de trabajo <Icon type="cloud-download"/></a>
                          </Col> 
                         <Col xs={24} lg={4}>
-                        <Button icon="plus" type="primary" onClick={this.showAddActividadGeneral}>Registrar plan de trabajo</Button>
+                            <Button icon="plus" type="primary" onClick={this.showAddActividadGeneral}>Registrar plan de trabajo</Button>
                         </Col>
                         <Col xs={24} lg={4}>
-                        <Button icon="edit" type="primary">Modificar plan de trabajo</Button>
+                            <Button icon="eye" type="primary" onClick={this.showPlanDeTrabajo}>Visulizar plan de trabajo</Button>
                         </Col>
-                        <Col xs={24} lg={12} >
-                        <p style={{marginLeft: 40, marginBottom: 15}}>Observaciones del plan de trabajo</p>
-                            <Timeline className="center-block" style={{marginLeft: 40,overflow: 'scroll', height: 180, paddingLeft: 20, paddingTop: 20}}>
-                               
-                            </Timeline>
+                        <Col xs={24} lg={4}>
+                           <a  href={`/api/plan_de_trabajo/${this.state.proyecto.id}/generar_plan_de_trabajo`} target="_blank"><Button icon="file-pdf" disabled={this.state.disabledDescargarPlan} type="primary">Descargar plan de trabajo</Button></a>
+                        </Col>  
+                        <Col xs={24} lg={4}>
+                            
+                            <Popover content={content} >
+                                <Button icon="upload" type="primary" disabled={this.state.disabledDescargarPlan} onClick={this.visibleAdjuntarPlan}>Adjuntar plan de trabajo</Button>
+                            </Popover>
+                        </Col>
                     </Col>
-                    </Col>
+                   
                     
                 </Row>
                 <Row className="border-top">
 
                     <Col xs={24} lg={24}>
-                    <p style={{marginBottom: 20}}>Cronograma de actividades</p>
-                        <a style={{color: '#4da1ff'}} href="/plantillas/cronograma.docx">Generar cronograma de actividades <Icon type="cloud-download"/></a>
+                        <p style={{marginBottom: 20}}>Cronograma de actividades</p>
+                        <a  href={`/api/plan_de_trabajo/${this.state.proyecto.id}/get_cronograma`} target="_blank"><Button icon="file-pdf" disabled={this.state.disabledDescargarPlan} type="primary">Generar cronograma de actividades</Button></a>
+                        
                     </Col>
                     
                 </Row>
@@ -83,9 +172,20 @@ export default class ProyectoDeResidencia extends Component{
                         <a style={{color: '#C22121'}} href={`/api/solicitud/${proyecto.anteproyecto.id_alumno}/oficio_prorroga.docx`} target="_blank"> Oficio de prorroga <Icon type="file-word" style={{color: '#4da1ff'}}  /></a>
                     </Item>
                 </Row>
-                <FormAddActividadGeneral visible={visibleRegistrarActividadGeneral}/>
-                
+                <FormAddActividadGeneral obtenerSubactividades={this.obtenerSubactividades} visible={visibleRegistrarActividadGeneral} proyectoActividadGeneral={proyecto} visibleRegistrarSubactividad={false}/>
+                <FormPlanDeTrabajo visible={visiblePlanDeTrabajo} proyectoActividadGeneral={proyecto} visibleRegistrarSubactividad={false}/>
+               <div>
+               <Modal
+                    title="Adjuntar plan de trabajo"
+                    visible={this.state.visibleAdjuntarPlan}
+                    onCancel={this.handleCancel}
+                    footer={[ ]}
+                >
+                   <WrappedFormPlanTrabajo proyecto={proyecto}/>
+                </Modal>     
+               </div>
             </div>
+            
         )
     }
 }

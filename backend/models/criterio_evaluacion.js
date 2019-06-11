@@ -1,3 +1,4 @@
+
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var criterios_evaluacion = sequelize.define('criterio_evaluacion', {

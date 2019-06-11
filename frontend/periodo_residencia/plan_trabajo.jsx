@@ -36,7 +36,7 @@ class FormPlanTrabajo extends Component{
         return (
             <Form onSubmit={this.handleSubmit} >
                 <div className="dropbox">
-                    <FormItem label="Seleccione su plan de trabajo">
+                    <FormItem label="">
                         {getFieldDecorator('file_plan_trabajo', {
                             valuePropName: 'fileList',
                             getValueFromEvent: this.normFile,

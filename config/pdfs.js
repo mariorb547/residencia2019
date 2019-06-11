@@ -100,6 +100,7 @@ module.exports = {
         { text: 'ASESOR INTERNO', alignment: 'center', style: 'header_table' },
         { text: 'LUGAR DE  LA RESIDENCIA', alignment: 'center', style: 'header_table' },
         { text: 'ESTADO', alignment: 'center', style: 'header_table' }])
+        
         content_table_no_cumplieron.unshift([{ text: 'NP.', alignment: 'center', style: 'header_table' },
         { text: 'NO. DE CONTROL', alignment: 'center', style: 'header_table' },
         { text: 'NOMBRE DEL ESTUDIANTE', alignment: 'center', style: 'header_table' },
@@ -147,7 +148,7 @@ module.exports = {
                     width: '*',
                     text: [
                         { text: `Fecha de reporte:`, style: 'subtitulo' },
-                        { text: ` ${moment().format('YYYY-MM-DD')} `, style: 'subtitulo', decoration: 'underline' },
+                        { text: ` ${moment().momentformat('YYYY-MM-DD')} `, style: 'subtitulo', decoration: 'underline' },
                         // { text: `${moment().format('LL')} `, style: 'subtitulo', decoration: 'underline' }
                     ]
 
@@ -3757,5 +3758,753 @@ module.exports = {
                 var pdfDoc = printer.createPdfKitDocument(docDefinition);
                 pdfDoc.pipe(fs.createWriteStream(`storeFiles/dictamenes/${periodo.id}-${periodo.periodo}-${periodo.ciclo}.pdf`));
                 pdfDoc.end();
-            }
+            },
+            generarPlanDeTrabajo: (proyecto,plan,res) => {
+               //console.log("respuetsa"+res)
+               //console.log("Proyecto"+JSON.stringify(proyecto))
+               //console.log("Proyecto"+JSON.stringify(plan))
+               var actividades_generales=[];
+              var subactividades=[];
+              var tareas=[];
+              
+              plan.map((actividad_general, index) => {
+                actividades_generales.push( [{text: '-',fillColor: '#dedede'},{text: '-',fillColor: '#dedede',},{text: '-',fillColor: '#dedede',},{text: '-',fillColor: '#dedede',},{text: '-',fillColor: '#dedede',}]);
+                
+               actividades_generales.push( [{ text: "Actividad general: ", alignment: 'left', style: 'header_bottom',bold:true}
+                        ,{ text: actividad_general.id_orden+".- "+actividad_general.actividad, alignment: 'left', style: 'header_bottom',colSpan:4  },]
+                );
+                actividades_generales.push( [{ text: "Objetivo: ", alignment: 'left', style: 'header_bottom',bold:true},
+                    { text: actividad_general.objetivo, alignment: 'left', style: 'header_bottom',colSpan:4  }]
+            );
+                actividades_generales.push( [{ text: "Entregable: ", alignment: 'left', style: 'header_bottom',bold:true},
+                    {  text: actividad_general.entregable, alignment: 'left', style: 'header_bottom' ,colSpan:4 }]
+                );
+                
+               
+               actividades_generales.push( [{ text: "Subactividades", alignment: 'left', style: 'header_bottom',bold:true,colSpan:5 }]
+                );
+                actividades_generales.push( [{ text: "Subactividad (s)", alignment: 'left', style: 'header_bottom',bold:true },
+                { text: "Tarea (s)", alignment: 'left', style: 'header_bottom',bold:true},
+                { text: "Horas", alignment: 'left', style: 'header_bottom',bold:true },
+                { text: "Entregable", alignment: 'left', style: 'header_bottom',bold:true },
+                { text: "Fecha entrega", alignment: 'left', style: 'header_bottom',bold:true }]
+                );
+                
+                   actividad_general.subactividades.map((subactividad, index) => {
+                    var row = [];
+                    var numRow=0;
+                            subactividad.tareas.map((tarea, index) => {
+                                row.push({ text:tarea.id_orden +".- "+tarea.tarea, alignment: 'left', style: 'header_bottom'},{ text:tarea.horas, alignment: 'left', style: 'header_bottom',},{ text:tarea.entregable, alignment: 'left', style: 'header_bottom',}, { text:tarea.fecha_entrega, alignment: 'left', style: 'header_bottom',}
+                                 ) 
+                               numRow+=1
+                            })
+                           console.log(subactividad.id_orden+" "+subactividad.actividad+"---------------------------numrow---------------"+numRow)
+                   
+                         if(numRow===0){
+                             //entra a esta opcion si subactividad no tiene ninguna tarea  asignada
+                             actividades_generales.push([{ text:subactividad.id_orden +".- "+subactividad.actividad, alignment: 'left', style: 'header_bottom'},{ text:"Ups no tiene tareas asignadas revisar plan de trabajo en el sistema", alignment: 'left', style: 'header_bottom',colSpan:4}]);
+                          } else if(numRow===1){
+                              //entra a esta opcion si la subactividad tienen solo una tarea asignada
+                             row.unshift({ text:subactividad.id_orden +".- "+subactividad.actividad, alignment: 'left', style: 'header_bottom'});
+                            actividades_generales.push( row);    
+                         }else if(numRow>1){
+
+                          //entra en esta opcion si la subactividad tiene mas de una tareas asignada   
+                         row.unshift({ text:subactividad.id_orden +".- "+subactividad.actividad, alignment: 'left', style: 'header_bottom',rowSpan:numRow});
+                             actividades_generales.push([row[0],row[1],row[2],row[3],row[4]]);  
+                             var contador=1;
+                             var num=4;
+                            while(contador!=numRow){
+                                var primero=[];
+                                primero.push({},row[num+1],row[num+2],row[num+3],row[num+4])
+                                actividades_generales.push(primero);
+                                contador++
+                                num+=4;
+                             }
+                            
+                        }
+                    })
+             })
+               var docDefinition = {
+                    pageSize: 'LETTER',
+                    pageMargins: [40, 125, 40, 50],
+                    header: () => {
+                        return {
+                            margin: [40, 45, 40, 20],
+                            alignment: 'center',
+                            width: '*',
+                            text: [
+                                { text: 'TECNOLÓGICO NACIONAL DE MÉXICO\n', style: 'titulo', bold: true },
+                                { text: 'INSTITUTO TECNOLÓGICO DE CHILPANCINGO', style: 'titulo', bold: true },
+                                                           
+                            ]
+
+                        }
+
+                    },
+                    content: [
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'center',
+                            width: '*',
+                            text: [
+                                { text: `Periodo: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.periodo.periodo, style: 'subtitulo' },
+                                { text: `         Año: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.periodo.ciclo, style: 'subtitulo' }
+
+                            ]
+                        }, 
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `Nombre del proyecto: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.nombre, style: 'subtitulo' },
+                               ]
+                        }, 
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `Objetivo general del proyecto: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.objetivo_general, style: 'subtitulo' }
+                            ]
+                        }, 
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `Nombre del residente: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.alumno.nombre+" "+ proyecto.anteproyecto.alumno.ap_paterno+" "+proyecto.anteproyecto.alumno.ap_materno, style: 'subtitulo' }
+                            ]
+                        }, 
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `Nombre del asesor interno: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.asesor_interno.titulo+" "+ proyecto.anteproyecto.asesor_interno.nombre+" "+ proyecto.anteproyecto.asesor_interno.ap_paterno+" "+proyecto.anteproyecto.asesor_interno.ap_materno, style: 'subtitulo' }
+                            ]
+                        },
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `Nombre del asesor externo: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.asesor_externo.nombre, style: 'subtitulo' }
+                            ]
+                        }, 
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `Empresa: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.asesor_externo.empresa.nombre, style: 'subtitulo' }
+                            ]
+                        }, 
+                        {   margin: [0, 10, 0, 0],
+                            table: {
+                                style: 'row_table',
+                                width:'*',
+                                headerRows:0,
+                                body: actividades_generales
+                            }
+                        },{
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `Lugar y Fecha: Chilpancingo Gro. A  `+`${moment().format('LL')} ` , style: 'subtitulo',},
+                                ]
+                        }, 
+                        {
+                            margin: [0, 30, 0, 0],
+                            table: {
+                                widths: ['*', '*','*'],
+                                alignment: 'center',
+                                body: [
+                                    [{ alignment: 'center', style: 'firma', text:  proyecto.anteproyecto.asesor_interno.titulo+" "+ proyecto.anteproyecto.asesor_interno.nombre+" "+ proyecto.anteproyecto.asesor_interno.ap_paterno+" "+proyecto.anteproyecto.asesor_interno.ap_materno, decoration: 'underline' },
+                                     { alignment: 'center', text:proyecto.anteproyecto.asesor_externo.nombre, style: 'firma', decoration: 'underline' },
+                                     { alignment: 'center', style: 'firma', text:proyecto.anteproyecto.alumno.nombre+" "+ proyecto.anteproyecto.alumno.ap_paterno+" "+proyecto.anteproyecto.alumno.ap_materno, decoration: 'underline' }
+                                    ],
+                                    [{ alignment: 'center', text: 'Asesor Interno', style: 'firma' },
+                                     { alignment: 'center', text: 'Asesor Externo', style: 'firma' },
+                                     { alignment: 'center', text: 'Residente', style: 'firma' }],
+                                ]
+                            },
+                            layout: 'noBorders'
+                        },
+
+
+                    ],
+                    styles: {
+                        titulo: {
+                            fontSize: 16,
+                        },
+                        titulo_nombre: {
+                            fontSize: 13,
+                        },
+                        subtitulo: {
+                            fontSize: 12,
+                        },
+                        min: {
+                            fontSize: 9
+                        },
+                        header_table: {
+                            fontSize: 10,
+                            bold: true
+                        },
+                        row_table: {
+                            fontSize: 9,
+                            alignment: 'center'
+                        },
+                        firma: {
+                            fontSize: 10,
+                            color: '#505962',
+                            alignment: 'center'
+                        },
+                        relleno: {
+                            fontSize: 12
+                        },
+                         
+                        
+
+
+                    }
+                }
+                var pdfDoc = printer.createPdfKitDocument(docDefinition);
+                pdfDoc.pipe(res);
+                pdfDoc.end();
+            },
+            
+            generarCronograma: (proyecto,plan,res) => {
+         
+                var tablaCronograma=[]
+                var tem=[]
+                var contador=1;
+                var nombreJefeDepartamento;
+                tem.push( { text:"ACTIVIDAD", style: 'row_table' },{})
+                while(contador!=21){
+                   tem.push( { text:contador, style: 'row_table' })
+                   contador++
+                }
+                tablaCronograma.push( tem)
+                let contadorSeguimientos=1;
+                var seguimientos=new Array();
+                proyecto.anteproyecto.periodo.seguimientos.map((seguimiento)=>{
+                   seguimientos.push(seguimiento.fecha_inicial)
+                    
+                })
+                var contadorSemanas=1;
+                var fechaSemanaComparar=0;
+                plan.map((actividad_general)=>{
+                   
+                    actividad_general.subactividades.map((subactividad)=>{
+                        subactividad.tareas.map((tarea)=>{
+                            var tem=[]
+                            tem.push( { text:tarea.id_orden+".-"+tarea.tarea, style: 'row_table',rowSpan:2 }, { text:"P", style: 'row_table' })
+                            if(tarea.fecha_entrega>fechaSemanaComparar){
+                                contadorSemanas++
+                            }
+
+                            if(tarea.fecha_entrega<=seguimientos[0]){
+                                //primer seguimiento
+                               var contador=1;
+                                while(contador!=21){
+                                        if(contadorSemanas==contador){
+                                            tem.push( { text:" ",fillColor:"#FFFF00", style: 'row_table' })
+                                         }else{
+                                            tem.push( { text:" ", style: 'row_table' })
+                                        }
+                                    contador++
+                                }
+
+                               tablaCronograma.push( tem)
+                               var tem2=[]
+                               var contador=1;
+                               tem2.push( { text:" ", style: 'row_table' },{ text:"R", style: 'row_table' })
+                               while(contador!=21){
+                                   tem2.push( { text:" " ,style: 'row_table' })
+                                    contador++
+                               }
+
+                              tablaCronograma.push( tem2)
+                                
+                            }else if(tarea.fecha_entrega>seguimientos[0]&& tarea.fecha_entrega<=seguimientos[1]){
+                               //segundo seguimiento
+
+                                var contador=1;
+                                while(contador!=21){
+                                    if(contadorSemanas==contador){
+                                        tem.push( { text:" ",fillColor:"#088A08", style: 'row_table' })
+                                    }else{
+                                        tem.push( { text:" ", style: 'row_table' })
+                                    }
+                                  contador++
+                                }
+
+                               tablaCronograma.push( tem)
+                               var tem2=[]
+                               var contador=1;
+                               tem2.push( { text:" ", style: 'row_table' },{ text:"R", style: 'row_table' })
+                               while(contador!=21){
+                                   tem2.push( { text:" " ,style: 'row_table' })
+                                    contador++
+                               }
+
+                              tablaCronograma.push( tem2)
+
+
+                            }else if(tarea.fecha_entrega>seguimientos[1]){
+                                    //tercer  seguimiento
+
+                                var contador=1;
+                                while(contador!=21){
+                                  if(contadorSemanas==contador){
+                                    tem.push( { text:" ",fillColor:"#0404B4", style: 'row_table' })
+
+                                  }else{
+                                    tem.push( { text:" ", style: 'row_table' })
+
+                                  }
+                                  contador++
+                                }
+
+                               tablaCronograma.push( tem)
+                               var tem2=[]
+                               var contador=1;
+                               tem2.push( { text:" ", style: 'row_table' },{ text:"R", style: 'row_table' })
+                               while(contador!=21){
+                                   tem2.push( { text:" " ,style: 'row_table' })
+                                    contador++
+                               }
+
+                              tablaCronograma.push( tem2)
+                                
+
+                            }
+
+                            fechaSemanaComparar=tarea.fecha_entrega
+                        })
+                    })
+                })
+                
+                proyecto.anteproyecto.periodo.carrera.departamento.docentes.map((docente)=>{
+                    nombreJefeDepartamento=docente.titulo+" "+docente.nombre+" "+docente.ap_paterno+" "+docente.ap_paterno
+                  
+                })
+
+                var docDefinition = {
+                    pageSize: 'A4',
+                    pageOrientation: 'landscape',  
+                    pageMargins: [40, 100, 40, 60],
+                    header: (currentPage, pageCount) => {
+                        return {
+                            margin: [40, 20, 40, 20],
+                            columns: [
+                                {
+                                    table: {
+                                        widths: [100, '*', '*', 100],
+                                        body: [
+                                            [{ image: __dirname + '/../public/img/tecnologicos.png', width: 80, height: 45, alignment: 'center', rowSpan: 2 }, { text: 'SEGUIMIENTO DE PROYECTO DE RESIDENCIAS PROFESIONALES', style: 'titulo', alignment: 'center', bold: true, colSpan: 2 }, '', { image: __dirname + '/../public/img/tec_Logo.png', width: 45, height: 45, alignment: 'center', rowSpan: 2 }],
+                                            ['', { text: 'Referencia a la Norma ISO 9001:2008  7.5.1', alignment: 'center', colSpan: 2, style: 'subtitulo' }, '', ''],
+                                            [{ text: 'Revisión 2', alignment: 'center', style: 'min' }, { text: 'Código: ITCHILPO-AC-PO-007-04', alignment: 'center', bold: true, style: 'min' }, { text: 'Fecha de aplicación: 16-junio-2011', alignment: 'center', style: 'min' }, { text: `Página ${currentPage} de ${pageCount}`, alignment: 'center', style: 'min' }]
+                                        ]
+                                    }
+                                }
+
+                            ]
+                        }
+
+                    },
+                    content: [
+                        {
+                            alignment: 'center',
+                            width: '*',
+                            bold: true,
+                            text: `INSTITUTO TECNOLÓGICO DE CHILPANCINGO \n SUBDIRECCIÓN ACADÉMICA \n DEPARTAMENTO DE ${proyecto.anteproyecto.periodo.carrera.departamento.nombre.toUpperCase()}`
+                        },
+                        {
+                            alignment: 'center',
+                            width: '*',
+                            bold: true,
+                            margin: [0, 10, 0, 20],
+                            text: 'SEGUIMIENTO DE PROYECTO DE RESIDENCIAS PROFESIONALES'
+                        }, 
+                        {
+                            table: {
+                                headerRows: 0,
+                                body: [
+                                    [{alignment: 'left', style: 'subtitulo', text: "ESTUDIANTE: " ,bold: true  },{alignment: 'left', style: 'subtitulo', text: proyecto.anteproyecto.alumno.nombre+" "+ proyecto.anteproyecto.alumno.ap_paterno+" "+proyecto.anteproyecto.alumno.ap_materno,decoration: 'underline'  },
+                                    {alignment: 'left', style: 'subtitulo', text: "No. DE CONTROL: " ,bold: true  }, { alignment: 'left', text:proyecto.anteproyecto.alumno.no_control, style: 'subtitulo', decoration: 'underline' },
+                                     ]
+                              
+                                ]
+                            },layout: 'noBorders'
+                        },
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `NOMBRE DEL PROYECTO: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.nombre, style: 'subtitulo',decoration: 'underline'  },
+                               ]
+                        },
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `EMPRESA: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.asesor_externo.empresa.nombre, style: 'subtitulo',decoration: 'underline'  }
+                            ]
+                        }, 
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `ASESOR EXTERNO: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.asesor_externo.nombre, style: 'subtitulo',decoration: 'underline'  }
+                            ]
+                        }, 
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `ASESOR INTERNO: `, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.asesor_interno.titulo+" "+ proyecto.anteproyecto.asesor_interno.nombre+" "+ proyecto.anteproyecto.asesor_interno.ap_paterno+" "+proyecto.anteproyecto.asesor_interno.ap_materno, style: 'subtitulo',decoration: 'underline'  }
+                            ]
+                        },
+                        {
+                            margin: [0, 10, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: `PERIODO  DE REALIZACIÓN:`, style: 'subtitulo', bold: true },
+                                { text: proyecto.anteproyecto.periodo.periodo, style: 'subtitulo',decoration: 'underline'  },
+                                ]
+                        }, 
+                        {
+                            margin: [0, 20, 0, 0],
+                            alignment: 'left',
+                         table: {
+                            headerRows: 0,
+                            widths: [300,'*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*','*'],
+                            body:tablaCronograma
+                          
+                        }
+                    },
+                    {
+                        
+                        alignment: 'left',
+                      table: {
+                        widths: [300,'*','*','*','*','*'],
+                        headerRows: 0,
+                         body:[[{text:"Observaciones",style:'subititulo'}, {}, {},{},{},{}],
+                         [{text:proyecto.anteproyecto.asesor_interno.titulo+" "+ proyecto.anteproyecto.asesor_interno.nombre+" "+ proyecto.anteproyecto.asesor_interno.ap_paterno+" "+proyecto.anteproyecto.asesor_interno.ap_materno+"\nAsesor interno", style: 'subtitulo'}, {}, {},{},{},{}],
+                         [{text:proyecto.anteproyecto.alumno.nombre+" "+ proyecto.anteproyecto.alumno.ap_paterno+" "+proyecto.anteproyecto.alumno.ap_materno+"\nEstudiante",style:'subititulo'}, {}, {},{},{},{}],
+                         [{text:nombreJefeDepartamento+"\nJefe Depto.",style:'subititulo'}, {}, {},{},{},{}]
+                        ]
+                      
+                    }
+                }
+                        
+                        
+                    ],
+                    styles: {
+                        titulo: {
+                            fontSize: 12,
+                        },
+                        subititulo: {
+                            fontSize: 10,
+                        },
+                        min: {
+                            fontSize: 9
+                        },
+                        header_table: {
+                            fontSize: 10,
+                            bold: true
+                        },
+                        row_table: {
+                            fontSize: 9,
+                            alignment: 'center'
+                        },
+                        firma: {
+                            fontSize: 10,
+                            color: '#505962',
+                            alignment: 'center'
+                        }
+
+
+                    }
+                }
+                var pdfDoc = printer.createPdfKitDocument(docDefinition);
+                pdfDoc.pipe(res);
+                pdfDoc.end();
+            },
+            generarFormatoRevisionSemanal: (proyecto,numero_semana,plan ,res) => {
+                let tareas=[]
+                let observaciones=[]
+
+                plan.map((actividad)=>{
+                    actividad.subactividades.map((subactividad)=>{
+                        subactividad.tareas.map((tarea)=>{
+                             // se obtiene la diferencia de dias
+                            let fecha_actual=moment(moment().format('YYYY-MM-DD'))
+                            let operacionFechas=moment(tarea.updatedAt).diff(fecha_actual, 'days')
+
+                            if(operacionFechas>=0&&operacionFechas<6){
+                                tareas.push({
+                                    tarea:tarea.tarea,
+                                    id_orden:tarea.id_orden,
+                                    fecha_entrega:tarea.fecha_entrega
+                                })
+                            }
+                            tarea.observaciones.map((observacion)=>{
+                                if(observacion.tipo_observacion==="revision_semanal"&& observacion.estado===false){
+                                    observaciones.push({
+                                        observacion:observacion.observacion,
+                                        estado:observacion.estado,
+                                        tarea:tarea.tarea,
+                                        id_orden_tarea:tarea.id_orden
+                                    })
+                                }
+                               
+                            })
+                        })
+                    })
+                })
+                  // se filtran las observaciones
+                observaciones =observaciones.filter((observacion) => !observacion.estado );
+                
+               
+                
+                var docDefinition = {
+                    background: [
+                        {
+                            margin: [0, 250, 0, 0],
+                            image: __dirname + '/../public/img/escudo.png',
+                            width: 400,
+                            height: 400,
+                            alignment: 'center'
+                        }
+                    ],
+                    pageSize: 'A4',
+                    pageMargins: [40, 150, 40, 100],
+                    header: (currentPage, pageCount) => {
+                        return {
+                            margin: [40, 20, 40, 0],
+                            alignment: 'justify',
+                            columns: [
+                                {
+                                    table: {
+                                        widths: ['*', '*'],
+                                        body: [
+                                            [{ image: __dirname + '/../public/img/sep-tec.png', width: 200, height: 70, alignment: 'left', }, { margin: [0, 25, 0, 0], alignment: 'right', text: [{ text: 'TECNOLÓGICO NACIONAL DE MEXICO\n', bold: true, style: 'header_tecnm' }, { text: 'Instituto Tecnológico de Chilpancingo', bold: true, style: 'header_itch' }] }],
+                                            [{ text: '“2015, Año del Generalísimo José María Morelos y Pavón”', alignment: 'center', style: 'header_bottom', colSpan: 2 }]
+                                        ]
+                                    },
+                                    layout: 'noBorders'
+                                }
+
+
+                            ]
+                        }
+                    },
+                    footer: (currentPage, pageCount) => {
+                        return {
+                            margin: [40, 20, 40, 0],
+                            alignment: 'justify',
+                            columns: [
+                                {
+                                    table: {
+                                        widths: [40, '*', 40, 40, 40],
+                                        body: [
+                                            [
+                                                { image: __dirname + '/../public/img/tec_Logo.png', width: 40, height: 40 },
+                                                {
+                                                    alignment: 'center', text: [
+                                                        { text: 'Av. José Francisco Ruíz Massieu No. 5, Colonia Villa Moderna, C.P.  39090 Chilpancingo, Guerrero.', style: 'footer_text' },
+                                                        { text: '\nTeléfono: (747) 48 01022, Tel/Fax: 47 2 10 14 ', style: 'footer_text' },
+                                                        { text: 'www.itchilpancingo.edu.mx', link: 'http://www.itchilpancingo.edu.mx', style: 'link_footer' },
+                                                        { text: ', email: ', style: 'footer_text' },
+                                                        { text: 'itchilpancingo@hotmail.com', style: 'link_footer' },
+                                                        { text: '\nFacebook: ', style: 'footer_text' },
+                                                        { text: 'Tecnológico de Chilpancingo Comunicación', link: 'https://www.facebook.com/Tecnológico-de-Chilpancingo-Comunicación-131577620223301/', decoration: 'underline', style: 'link_footer' }
+
+                                                    ]
+                                                },
+                                                { image: __dirname + '/../public/img/footer_2.png', width: 40, height: 40 },
+                                                { image: __dirname + '/../public/img/footer_3.png', width: 40, height: 40 },
+                                                { image: __dirname + '/../public/img/footer_4.png', width: 40, height: 40 },
+
+
+                                            ],
+                                        ]
+                                    },
+                                    layout: 'noBorders'
+                                }
+
+
+                            ]
+                        }
+                    },
+                    content: [
+                        {
+                            alignment: 'center',
+                            width: '*',
+                            bold: true,
+                            text: `Anexo V \n Formato de registro de asesoría`
+                        },
+                        {
+                            margin: [0, 50, 0, 0],
+                            alignment: 'right',
+                            width: '*',
+                            text: `Chilpancingo, Guerrero. A ${moment().format('LL')}`,
+                            decoration: 'underline',
+                            style: 'normal'
+                        },
+                        {
+                            margin: [0, 20, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Departamento Académico: ', style: 'normal' },
+                                { text: proyecto.anteproyecto.periodo.carrera.departamento.nombre.toUpperCase(), style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Nombre del Residente: ', style: 'normal' },
+                                { text: `${proyecto.anteproyecto.alumno.nombre} ${proyecto.anteproyecto.alumno.ap_paterno} ${proyecto.anteproyecto.alumno.ap_materno} `, style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'justify',
+                            width: '*',
+                            text: [
+                                { text: 'Número de Control: ', style: 'normal' },
+                                { text: `${proyecto.anteproyecto.alumno.no_control}`, style: 'normal', decoration: 'underline' },
+                                { text: ' Carrera: ', style: 'normal' },
+                                { text: `${proyecto.anteproyecto.periodo.carrera.nombre}`, style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Nombre del Proyecto: ', style: 'normal' },
+                                { text: `${proyecto.anteproyecto.nombre}`, style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Periodo de realización de residencia profesional: ', style: 'normal' },
+                                { text: `${proyecto.anteproyecto.periodo.periodo} ${proyecto.anteproyecto.periodo.ciclo}`, style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Empresa, organismo o dependencia: ', style: 'normal' },
+                                { text: `${proyecto.anteproyecto.asesor_externo.empresa.nombre}`, style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Asesoría número: ', style: 'normal' },
+                                { text: numero_semana, style: 'normal', decoration: 'underline' },
+                                { text: ' Tipo de asesoría: ', style: 'normal' },
+                                { text: "Ordinaria", style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Temas a asesorar: ', style: 'normal' },
+                                { text:  `${tareas.map(tarea => `${tarea.fecha_entrega+": "+tarea.id_orden+".-"+tarea.tarea+"\n"} `)}`, style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 15, 0, 0],
+                            alignment: 'left',
+                            width: '*',
+                            text: [
+                                { text: 'Solución recomendada: ', style: 'normal' },
+                                { text:  `${observaciones.map(observacion => `${observacion.id_orden_tarea+".-"+observacion.observacion} `+"\n")}`, style: 'normal', decoration: 'underline' },
+                            ],
+                        },
+                        {
+                            margin: [0, 100, 0, 0],
+                            table: {
+                                widths: ['*', '*'],
+                                alignment: 'center',
+                                body: [
+                                    [{ alignment: 'center', style: 'normal',text:proyecto.anteproyecto.asesor_interno.titulo+" "+ proyecto.anteproyecto.asesor_interno.nombre+" "+ proyecto.anteproyecto.asesor_interno.ap_paterno+" "+proyecto.anteproyecto.asesor_interno.ap_materno, decoration: 'overline' },
+                                     { alignment: 'center', text: proyecto.anteproyecto.alumno.nombre+" "+ proyecto.anteproyecto.alumno.ap_paterno+" "+proyecto.anteproyecto.alumno.ap_materno, style: 'normal', decoration: 'overline' }],
+                                    [{ alignment: 'center', text: 'Asesor interno', style: 'normal' }, { alignment: 'center', text: 'Residente', style: 'normal' }],
+                                ]
+                            },
+                            layout: 'noBorders'
+                        },
+
+
+                    ],
+                    styles: {
+                        normal: {
+                            fontSize: 11.5
+                        },
+                        header_tecnm: {
+                            color: '#bababa',
+                            fontSize: 12
+                        },
+                        header_itch: {
+                            color: '#bababa',
+                            fontSize: 11
+                        },
+                        header_bottom: {
+                            color: '#bababa',
+                            fontSize: 9
+                        },
+                        footer_text: {
+                            color: '#bababa',
+                            fontSize: 7.5
+                        },
+                        link_footer: {
+                            color: '#0b24fb',
+                            fontSize: 7.5
+                        }
+                    }
+                }
+                var pdfDoc = printer.createPdfKitDocument(docDefinition);
+                pdfDoc.pipe(res);
+                pdfDoc.end();
+            },
+            
+            
         }

@@ -2,7 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   var tareas = sequelize.define('tareas', {
     id_orden:{
-      type: DataTypes.STRING(10),
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     tarea: {
@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       estado_revision_plan: {
         type: DataTypes.ENUM,
         allowNull: false,
-        values: ['revision', 'aprobado','no aprobado'],
+        values: ['revision', 'aprobado','no_aprobado'],
         defaultValue: 'revision'
       },
       estado_revision_semanal: {
@@ -65,6 +65,10 @@ module.exports = (sequelize, DataTypes) => {
     tareas.hasMany(models.observaciones, {
         foreignKey: 'id_tarea',
         as: 'observaciones'
+      });
+      tareas.hasMany(models.evidencias, {
+        foreignKey: 'id_tarea',
+        as: 'evidencias'
       });
    
 }

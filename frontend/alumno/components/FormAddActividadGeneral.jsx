@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
-import {TreeSelect,Button, Modal, Form, Input, Radio,Select, Icon, message, Tabs, Timeline, Tooltip, DatePicker, AutoComplete,Row, Col,Menu, Dropdown, InputNumber, Alert } from 'antd';
+import {TreeSelect,Button, Modal, Form, Input, Radio,Select, Icon, message, Tabs, onChange, Tooltip, DatePicker, AutoComplete,Row, Col,Menu, Dropdown, InputNumber, Alert } from 'antd';
 
 const FormItem = Form.Item;
 const InputGroup = Input.Group;
@@ -9,21 +9,14 @@ const TabPane = Tabs.TabPane;
 
 import axios from 'axios';
 import moment from 'moment';
-
-//import FormAddSubactividad from './FormAddSubactividad.jsx';
+import FormAddSubactividad from './FormAddSubactividad.jsx';
 
 
 const CreateFormAddActividadGeneral = Form.create()(
     (props => {
         const { visible, onCancel, onCreate, form, carrera, alumnos_rechazados, addToPeriodo} = props;
         const { getFieldDecorator} = form;
-        const menu = (
-            <Menu onClick={onClick}>
-              <Menu.Item key="1">Incremental</Menu.Item>
-              <Menu.Item key="2">RUP</Menu.Item>
-              <Menu.Item key="3">Prototipos</Menu.Item>
-            </Menu>
-          );
+        
           function onChange(value) {
             console.log('changed', value);
           }
@@ -51,33 +44,29 @@ const CreateFormAddActividadGeneral = Form.create()(
         // console.warn(alumnos_rechazados)
         return(
             <Modal
-                visible={visible}
-                title={`Registrar asesoría`}
-                //okText="Guardar"
-                onCancel={onCancel}
-                width={1000}
-                
+            visible={visible}
+            title={`Registrar actividad general`}
+            okText="Guardar"
+            onCancel={onCancel}
+            onOk={onCreate}
+            width={600}
+            maskClosable={false}
+            centered
             >
                 <Form layout="vertical">
                     <Row>
-                        
-                        
+                       
                         <Col span={20}>
-                            <FormItem label="Actividad principal">
-                                {getFieldDecorator('actividad_principal', {
+                            <FormItem label="Actividad general">
+                                {getFieldDecorator('actividad', {
                                     rules: [{required: true, message: 'Actividad principal es obligatoria.'}]
                                 })(
-                                    <Input  prefix={<Icon type="laptop" style={{ fontSize: 12 }} />} placeholder="Actividad Principal"/>
+                                    <Input  prefix={<Icon type="laptop" style={{ fontSize: 12 }} />} placeholder="Actividad general"/>
                                 )
                                 }
                             </FormItem>
                         </Col>
-                        <Col span={4}>
-                            <FormItem label="Nueva actividad ">
-                                 <Button type="primary">Generar</Button>
-    
-                            </FormItem>
-                        </Col>
+                       
                         <Col span={20}>
                             <FormItem label="Objetivo">
                                 {getFieldDecorator('objetivo', {
@@ -98,64 +87,7 @@ const CreateFormAddActividadGeneral = Form.create()(
                                 }
                             </FormItem>
                         </Col>
-                        <Col span={20}>
-                        <FormItem label="Subactividades">
-                       
-                        </FormItem>
-                        </Col>
-                        <Col span={20}>
-                        <FormItem label="Actividad">
-                                {getFieldDecorator('actividad', {
-                                    rules: [{required: true, message: 'Actividad es obligatoria.'}]
-                                })(
-                                    <Input  prefix={<Icon type="laptop" style={{ fontSize: 12 }} />} placeholder="Actividad"/>
-                                )
-                                }
-                            </FormItem>
-                        </Col>
-                        
-                        <Col span={4}>
-                            <FormItem label="Nueva actividad">
-                                 <Button type="primary">Generar</Button>
-    
-                            </FormItem>
-                        </Col>
-                        <Col span={8}>
-                        <FormItem label="Tarea">
-                                {getFieldDecorator('tarea', {
-                                    rules: [{required: true, message: 'Tarea es obligatoria.'}]
-                                })(
-                                    <Input  prefix={<Icon type="laptop" style={{ fontSize: 12 }} />} placeholder="Tarea"/>
-                                )
-                                }
-                            </FormItem>
-                        </Col>
-                        <Col span={6}>
-                        <FormItem label="Entregable">
-                                {getFieldDecorator('entregable', {
-                                    rules: [{required: true, message: 'Entregable es obligatoria.'}]
-                                })(
-                                    <Input  prefix={<Icon type="laptop" style={{ fontSize: 12 }} />} placeholder="Entregable"/>
-                                )
-                                }
-                            </FormItem>
-                        </Col>
-                        <Col span={2}>
-                            <FormItem label="Horas">
-                                 <InputNumber min={1} max={50} defaultValue={3} onChange={onChange} />
-                            </FormItem>
-                        </Col>
-                        <Col span={4}>
-                            <FormItem label="Fecha entrega">
-                            <DatePicker onChange={onChange} />
-                            </FormItem>
-                        </Col>
-                        <Col span={4}>
-                            <FormItem label="Nueva tarea">
-                                 <Button type="primary">Generar</Button>
-    
-                            </FormItem>
-                        </Col>
+                                              
                         
 
                     </Row>
@@ -169,59 +101,72 @@ const CreateFormAddActividadGeneral = Form.create()(
     })
 )
 
+
 export default class FormAddActividadGeneral extends Component{
     constructor(props){
         super(props);
         this.state = {
             visible: props.visible,
-            proyecto: props.proyecto,
-            
+            proyeproyectoActividadGeneral: props.proyectoActividadGeneral,
+            visibleRegistrarSubactividad:props.visibleRegistrarSubactividad,
+            obtenerSubactividades:props.obtenerSubactividades
         }
-        
     }
+
     componentWillReceiveProps(nextProps) {
-        const {visible, proyecto, usuario} = nextProps;
+        const {visible, proyectoActividadGeneral, visibleRegistrarSubactividad} = nextProps;
         this.setState({
             visible,
-            proyecto,
+            proyectoActividadGeneral,visibleRegistrarSubactividad
         })
     }
-  
+
+
     showModal = () => {
         this.setState({
             visible: true,
         });
     }
+    showAddSubactividad= () => {
+        this.setState({
+            visibleRegistrarSubactividad: true
+        })
+    }
+   
     handleCancel = () => {
         const form = this.form;
         form.resetFields();
         this.setState({ visible: false });
-
+        
     }
     handleCreate = () => {
-        const {proyecto} = this.state
+        const {proyectoActividadGeneral} = this.state
         const form = this.form;
+       
         form.validateFields((err, values) => {
-            if (err) {
+          
+           if (err) {
                 return;
-            }            
+            }       
+                 
             // crear post al servidor
-            axios.post('/api/proyecto/asesoria', {
-                id_proyecto: proyecto.id,
-                id_asesor_interno: proyecto.anteproyecto.id_asesor_interno,
-                fecha: values.fecha,
-                url_avance: values.url_avance,
-                temas_a_asesorar: values.temas_a_asesorar
+            axios.post('/api/plan_de_trabajo/actividad_general', {
+                id_proyecto:proyectoActividadGeneral.id,
+                actividad: values.actividad,
+                objetivo: values.objetivo,
+                entregable:values.entregable
             }).then((res) => {
                 // console.log(res)
                 if(res.status === 200){
-                    message.success("Asesoría registrada satisfactoriamente")
+                    message.success("Actividad general registrada satisfactoriamente")
                     this.setState({ visible: false });
                     form.resetFields();
-                    this.props.updateAsesorias();
+                    this.showAddSubactividad();
+                   // this.props.updateAsesorias();
+                   
                 }else{
                     Modal.error({
-                        title: 'Error al registrar asesoría. Revisar los siguientes campos',
+                        title: 'Error al registrar actividad general. Revisar los siguientes campos',
                         content:(
                             <div>
                                 {res.data.errores}
@@ -237,10 +182,11 @@ export default class FormAddActividadGeneral extends Component{
     saveFormRef = (form) => {
         this.form = form;
     }
-   
-      
+
     render(){
         // console.warn(this.state.proyecto)
+        const {visibleRegistrarSubactividad,proyectoActividadGeneral} = this.state;
+        
         return(
             <div>
 
@@ -248,10 +194,10 @@ export default class FormAddActividadGeneral extends Component{
                     ref={this.saveFormRef}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}
-                    //onCreate={this.handleCreate}
+                    onCreate={this.handleCreate}
                 />
-                  <Button type="primary" >Nueva actividad </Button>
-                 
+                <FormAddSubactividad visible1={visibleRegistrarSubactividad} obtenerSubactividades={this.state.obtenerSubactividades} proyecto={proyectoActividadGeneral} />
+                
             </div>
         )
     }

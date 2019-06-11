@@ -4,7 +4,7 @@ const {TabPane} = Tabs;
 
 import uuid from 'uuid';
 import moment from 'moment';
-
+import axios from 'axios';
 // components
 import WrappedFormSeguimiento from '../components/FormSeguimiento.jsx';
 import WrappedFormSeguimientoFinal from '../components/FormSeguimientoFinal.jsx';
@@ -16,12 +16,14 @@ export default class SeguimientoProyecto extends Component{
         super(props);
         this.state = {
             seguimientos: props.seguimientos,
+            proyecto:props.proyecto,
             renderSeguimiento: null
         }
     }
     componentWillReceiveProps(nextProps){
         this.setState({
             seguimientos: nextProps.seguimientos,
+            proyecto:nextProps.proyecto,
             renderSeguimiento: null
         })
     }
@@ -46,17 +48,40 @@ export default class SeguimientoProyecto extends Component{
                 })
             }
             
-        }else{
-            const seguimiento = seguimientos.find(seg => seg[0].id==id_seguimiento)[0];            
+        }else{alert("id seguimiento "+id_seguimiento)
+
+            const _seguimiento = seguimientos.find(seg => seg[0].id==id_seguimiento)[0];
+            axios.get(`/api/seguimientos/obtener_seguimientos/${this.state.proyecto.anteproyecto.id_periodo}`).then(res =>{
+   
+                if(res.status === 200){
+                    let contadorSeguimiento=0
+                    let numeroSeguimiento=0
+                    res.data.map((seguimiento)=>{
+                      
+                        //se comparan los seguimientos para saber la posion del seguimiento selecionado
+                        alert("ide seguimiento: "+id_seguimiento+" id de seguimientos: "+seguimiento.id)
+                        if(_seguimiento.seguimiento.id==seguimiento.id){
+                            alert("entre ompracion "+contadorSeguimiento)
+                            numeroSeguimiento=contadorSeguimiento
+                        }
+                        contadorSeguimiento++
+                        
+                    })
+                    this.setState({
+                        renderSeguimiento: <WrappedFormSeguimiento proyecto={this.state.proyecto} seguimiento={_seguimiento} seguimientos={res.data} numeroSeguimiento={numeroSeguimiento}/>
+                    })
+                }             
+            }) 
+           {/* const seguimiento = seguimientos.find(seg => seg[0].id==id_seguimiento)[0];            
             if(currentDate >= seguimiento.seguimiento.fecha_inicial && currentDate <= seguimiento.seguimiento.fecha_final){
                 this.setState({
-                    renderSeguimiento: <WrappedFormSeguimiento seguimiento={seguimiento}/>
+                    renderSeguimiento: <WrappedFormSeguimiento proyecto={this.state.proyecto} seguimiento={seguimiento}/>
                 })
             }else{
                 this.setState({
                     renderSeguimiento: <Alert message={`No puede acceder al seguimiento,\n Fecha inicial: ${moment(seguimiento.seguimiento.fecha_inicial, 'YYYY-MM-DD').format('LL')} - Fecha final: ${moment(seguimiento.seguimiento.fecha_final, 'YYYY-MM-DD').format('LL')}`} type="warning" showIcon />
                 })
-            }
+            }*/}
         }
         
         

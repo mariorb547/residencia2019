@@ -1,17 +1,20 @@
 Arguments: 
-  /usr/bin/node /usr/share/yarn/bin/yarn.js add sequelize -u cli
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js install
 
 PATH: 
-  /usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/android-studio/bin/
+  C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\Git\cmd;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\PuTTY\;C:\xampp\php;C:\composer;C:\Users\Mario\AppData\Roaming\npm;C:\Users\Mario\AppData\Local\Yarn\bin;C:\Users\Mario\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Mario\AppData\Local\Microsoft\WindowsApps;C:\Users\Mario\AppData\Roaming\Composer\vendor\bin
 
 Yarn version: 
-  1.3.2
+  1.13.0
 
 Node version: 
-  6.12.2
+  10.15.0
 
 Platform: 
-  linux x64
+  win32 x64
+
+Trace: 
+  Error: EPERM: operation not permitted, scandir 'C:\Users\Mario\Desktop\dev-seguimiento-residencias-2\node_modules\@types'
 
 npm manifest: 
   {
@@ -44,11 +47,14 @@ npm manifest:
       "cluster": "^0.7.7",
       "cookie-parser": "^1.4.3",
       "cron": "^1.3.0",
+      "docxtemplater": "^3.6.6",
       "dotenv": "^4.0.0",
       "express": "^4.15.4",
       "express-session": "^1.15.5",
       "forever": "^0.15.3",
       "generate-password": "^1.3.0",
+      "jszip": "2",
+      "jszip-utils": "^0.0.2",
       "method-override": "^2.3.9",
       "moment": "^2.18.1",
       "morgan": "^1.8.2",
@@ -64,6 +70,7 @@ npm manifest:
       "pug": "^2.0.0-rc.4",
       "react": "^15.6.1",
       "react-dom": "^15.6.1",
+      "react-file-base64": "^1.0.3",
       "react-media-player": "^0.6.7",
       "react-particles-js": "^2.1.0",
       "react-pdf-js-infinite": "^1.2.0",
@@ -75,13 +82,14 @@ npm manifest:
       "strong-store-cluster": "^1.0.1",
       "superagent": "^3.6.0",
       "uuid": "^3.1.0",
-      "video-react": "^0.8.9"
+      "video-react": "^0.8.9",
+      "yarn": "^1.5.1"
     },
     "scripts": {
       "start": "nodemon server.js",
       "dev": "concurrently \"nodemon server.js\" \"webpack -w\"",
       "db-test": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all",
-      "db-deploy": "sequelize db:migrate && sequelize db:seed --seed 20170918032636-create-admin.js 20170926023708-tipo_de_seguros.js 20171116031737-init_criterios.js"
+      "db-deploy": "sequelize db:migrate && sequelize db:seed --seed 20170918032636-create-admin.js 20170926023708-tipo_de_seguros.js 20171116031737-init_criterios.js 201709260237083-tipo-titulos.js 201709260237081-tipo-puestos.js 201709260237082-tipo-colonias.js 20171019153445-usuarios-para_empresas.js  20171012211840-create-titulares.js 20171012223127-empresas.js 20171012201853-create-departamentos.js"
     }
   }
 
@@ -2183,6 +2191,12 @@ Lockfile:
     version "1.1.0"
     resolved "https://registry.yarnpkg.com/doctypes/-/doctypes-1.1.0.tgz#ea80b106a87538774e8a3a4a5afe293de489e0a9"
   
+  docxtemplater@^3.6.6:
+    version "3.6.6"
+    resolved "https://registry.yarnpkg.com/docxtemplater/-/docxtemplater-3.6.6.tgz#a8da8d09f9f1ea13a1116d2922a6f1648aee7c15"
+    dependencies:
+      xmldom "^0.1.27"
+  
   dom-align@1.x:
     version "1.6.4"
     resolved "https://registry.yarnpkg.com/dom-align/-/dom-align-1.6.4.tgz#7702a40352ebf29f31551296756d08dae2b3c3fa"
@@ -3627,6 +3641,16 @@ Lockfile:
       is-promise "^2.0.0"
       promise "^7.0.1"
   
+  jszip-utils@^0.0.2:
+    version "0.0.2"
+    resolved "https://registry.yarnpkg.com/jszip-utils/-/jszip-utils-0.0.2.tgz#457d5cbca60a1c2e0706e9da2b544e8e7bc50bf8"
+  
+  jszip@2:
+    version "2.6.1"
+    resolved "https://registry.yarnpkg.com/jszip/-/jszip-2.6.1.tgz#b88f3a7b2e67a2a048152982c7a3756d9c4828f0"
+    dependencies:
+      pako "~1.0.2"
+  
   kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
     version "3.2.2"
     resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-3.2.2.tgz#31ea21a734bab9bbb0f32466d893aea51e4a3c64"
@@ -4366,6 +4390,10 @@ Lockfile:
   pako@^0.2.5, pako@~0.2.0:
     version "0.2.9"
     resolved "https://registry.yarnpkg.com/pako/-/pako-0.2.9.tgz#f3f7522f4ef782348da8161bad9ecfd51bf83a75"
+  
+  pako@~1.0.2:
+    version "1.0.6"
+    resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.6.tgz#0101211baa70c4bca4a0f63f2206e97b7dfaf258"
   
   parse-asn1@^5.0.0:
     version "5.1.0"
@@ -5410,13 +5438,20 @@ Lockfile:
       strip-json-comments "~2.0.1"
   
   react-dom@^15.6.1:
-    version "15.6.1"
-    resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.6.1.tgz#2cb0ed4191038e53c209eb3a79a23e2a4cf99470"
+    version "15.6.2"
+    resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.6.2.tgz#41cfadf693b757faf2708443a1d1fd5a02bef730"
+    integrity sha1-Qc+t9pO3V/rycIRDodH9WgK+9zA=
     dependencies:
       fbjs "^0.8.9"
       loose-envify "^1.1.0"
       object-assign "^4.1.0"
       prop-types "^15.5.10"
+  
+  react-file-base64@^1.0.3:
+    version "1.0.3"
+    resolved "https://registry.yarnpkg.com/react-file-base64/-/react-file-base64-1.0.3.tgz#4174efa79445b139902ecc2730fc417efe79cb88"
+    dependencies:
+      react "^15.6.1"
   
   react-lazy-load@^3.0.10:
     version "3.0.12"
@@ -6868,6 +6903,10 @@ Lockfile:
     version "3.0.0"
     resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-3.0.0.tgz#496b2cc109eca8dbacfe2dc72b603c17c5870ad4"
   
+  xmldom@^0.1.27:
+    version "0.1.27"
+    resolved "https://registry.yarnpkg.com/xmldom/-/xmldom-0.1.27.tgz#d501f97b3bdb403af8ef9ecc20573187aadac0e9"
+  
   xtend@^4.0.0, xtend@~4.0.1:
     version "4.0.1"
     resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
@@ -6918,7 +6957,7 @@ Lockfile:
       cliui "^2.1.0"
       decamelize "^1.0.0"
       window-size "0.1.0"
-
-Trace: 
-  Error: ENOSPC: no space left on device, mkdir '/home/fjaimes/.cache/yarn/v1/npm-validator-9.4.1-abf466d398b561cd243050112c6ff1de6cc12663'
-      at Error (native)
+  
+  yarn@^1.5.1:
+    version "1.5.1"
+    resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.5.1.tgz#e8680360e832ac89521eb80dad3a7bc27a40bab4"

@@ -12,12 +12,14 @@ const Asesor_externo = require('../models').asesor_externo;
 const Docente = require('../models').Docente;
 const Empresa = require('../models').Empresa;
 const situacion = require('../models').situacion;
-
+const tareas = require('../models').tareas;
+const observaciones = require('../models').observaciones;
 const pdfs = require('../../config/pdfs');
 const fs = require('fs');
 
 module.exports.getSeguimiento = (req, res) => {
-    return Seguimiento.findAll({ include: [{ model: Periodo, as: 'periodo', include: [{ model: Carrera, as: 'carrera' }] }] }).then(datos => {
+    return Seguimiento.findAll({ include: [{ model: Periodo, as: 'periodo', 
+        include: [{ model: Carrera, as: 'carrera' }] }] }).then(datos => {
         res.status(200).json(datos)
     }).catch(Sequelize.ValidationError, (err) => {
         var errores = err.errors.map((element) => {
@@ -188,3 +190,59 @@ module.exports.verseguimiento = (req, res) =>{
         res.status(406).json({ err: err })
     })
 }
+
+module.exports.obtenerSeguimientos = (req, res) => {
+    const id_periodo = req.params.id_periodo;
+           
+    Seguimiento.findAll({ 
+         where: {id_periodo},order: [
+            ['fecha_inicial', 'ASC']]
+    }).then(_plan => {
+         res.status(200).json(_plan);
+    }).catch(err => {
+         console.log(err)
+         res.status(406).json({err: err})
+    })
+        
+}
+module.exports.updateEstadoTareaAddObservacion = (req, res) => {
+    const id = req.body.id_tarea;
+             
+                    tareas.update({
+                        estado_revision_mensual:'no aprobado'
+                    },{where: {id}}).then((_observacion)=>{
+                        // console.log('success=======>    ', result)
+                        res.status(200).json(_observacion)
+                    }).catch(Sequelize.ValidationError, (err) => {
+                        var errores = err.errors.map((element) => {
+                            return `${element.path}: ${element.message}`
+                        })
+                        // console.log('==>', errores)
+                        res.status(202).json({errores})
+                    }).catch((err) => {
+                         console.log(err);
+                        res.status(406).json({err: err})
+                    })
+                
+
+    }
+    module.exports.updateEstadoObservacion = (req, res) => {
+        const id = req.body.id,
+            estado = req.body.estado;
+    console.log("<<<<< id : "+id+" estado: "+estado)
+        observaciones.update({
+            estado:estado
+        },{where: {id: id}}).then((_observacion)=>{
+            // console.log('success=======>    ', result)
+            res.status(200).json(_observacion)
+        }).catch(Sequelize.ValidationError, (err) => {
+            var errores = err.errors.map((element) => {
+                return `${element.path}: ${element.message}`
+            })
+            // console.log('==>', errores)
+            res.status(202).json({errores})
+        }).catch((err) => {
+            console.log(err);
+            res.status(406).json({err: err})
+        }) 
+    }

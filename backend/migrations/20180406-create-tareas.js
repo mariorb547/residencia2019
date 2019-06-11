@@ -11,7 +11,6 @@ module.exports = {
       id_subactividad: {
         type: Sequelize.INTEGER,
         onDelete: 'CASCADE',
-        unique: true,
         allowNull: false,
         references: {
           model: 'subactividades',

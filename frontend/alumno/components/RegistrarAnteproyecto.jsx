@@ -9,6 +9,8 @@ const RadioGroup = Radio.Group;
 import axios from 'axios';
 import moment from 'moment';
 import '../../styling.css';
+import WrappedFormPlanTrabajo from '../../periodo_residencia/plan_trabajo.jsx';
+
 const CreateRegistrarProyecto = Form.create()(
     (props => {
         const { handleSubmit, form, anteproyecto, empresas, normFile, beforeUpload } = props;

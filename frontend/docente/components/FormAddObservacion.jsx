@@ -14,7 +14,7 @@ const CreateFormAddObservacion = Form.create()(
         return(
             <Modal
                 visible={visible}
-                title={`Agregar observación al ${tipo}`}
+                title={`Agregar observación  ${tipo}`}
                 okText="Guardar"
                 onCancel={onCancel}
                 onOk={onCreate}
@@ -31,24 +31,31 @@ const CreateFormAddObservacion = Form.create()(
     })
 )
 
-export default class FormAddObservacion extends Component{
+export default class FormAddObservaciones extends Component{
     constructor(props){
         super(props);
         this.state = {
             visible: props.visible,
             tipo: props.tipo,
-            id_proyecto: props.id_proyecto,
-            usuario: props.usuario
+            id_tarea: props.id_tarea,
+            usuario:props.usuario,
+            actulizarCantidadObservacionesAddObservacion:props.actulizarCantidadObservacionesAddObservacion,
+            ocultarAddObservacion:props.ocultarAddObservacion,
+            rutaUpdateObservacion:props.rutaUpdateObservacion
         }
     }
     componentWillReceiveProps(nextProps) {
-        const {visible, tipo, id_proyecto, usuario} = nextProps;
+        const { tipo, id_tarea,usuario,ocultarAddObservacion,actulizarCantidadObservacionesAddObservacion} = nextProps;
         this.setState({
-            visible,
+            visible:nextProps.visible,
             tipo,
-            id_proyecto,
-            usuario
+            id_tarea,
+            usuario,
+            ocultarAddObservacion,
+            actulizarCantidadObservacionesAddObservacion
+           
         })
+       
     }
     showModal = () => {
         this.setState({
@@ -59,7 +66,8 @@ export default class FormAddObservacion extends Component{
         const form = this.form;
         form.resetFields();
         this.setState({ visible: false });
-        
+        this.state.ocultarAddObservacion()
+      
     }
     handleCreate = () => {
         const form = this.form;
@@ -72,16 +80,33 @@ export default class FormAddObservacion extends Component{
             // crear post al servidor
             axios.post('/api/proyecto/observacion', {
                 observacion: values.observacion,
-                tipo: this.state.tipo,
-                id_proyecto: this.state.id_proyecto,
+                tipo_observacion: this.state.tipo,
+                id_tarea: this.state.id_tarea,
                 id_asesor_interno: this.state.usuario.id_docente
             }).then((res) => {
                 // console.log(res)
                 if(res.status === 200){
                     message.success("Observación agregada correctamente")
-                    this.setState({ visible: false });
+                  //  this.setState({ visible: false });
                     form.resetFields();
-                    this.props.updateObservaciones();
+                   
+                    
+                    this.state.actulizarCantidadObservacionesAddObservacion()
+
+                    //se realiza el update de la tarea a no aprovada en el estado_revision_plan
+                    
+                    axios.put(this.state.rutaUpdateObservacion, {
+                        id_tarea:this.state.id_tarea,
+                        
+                    }).then(res => {
+                        if (res.status === 200) {
+                           
+                        } else {
+                            message.error('No se han guardado los cambios, reportar error al administrador.')
+                        }
+                    })
+                  
+                   
                 }else{
                     Modal.error({
                         title: 'Error al agregar la observación. Revisar los siguientes campos',
@@ -96,6 +121,8 @@ export default class FormAddObservacion extends Component{
                 message.error(err);                                    
             })
         });
+
+
     }
     saveFormRef = (form) => {
         this.form = form;
@@ -104,8 +131,7 @@ export default class FormAddObservacion extends Component{
         // console.warn('Aqui merengues',this.state.usuario)
         return(
             <div>
-
-                <CreateFormAddObservacion
+               <CreateFormAddObservacion
                     ref={this.saveFormRef}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}

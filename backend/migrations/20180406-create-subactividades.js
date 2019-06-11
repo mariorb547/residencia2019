@@ -15,15 +15,13 @@ module.exports = {
       actividad: {
         type: Sequelize.STRING(400),
         allowNull: true,
-      },
-           
+      },    
       id_actividad_general: {
         type: Sequelize.INTEGER,
         onDelete: 'CASCADE',
-        unique: true,
         allowNull: false,
         references: {
-          model: 'actividad_general',
+          model: 'actividades_generales',
           key: 'id',
           as: 'id_actividad_general'
         }

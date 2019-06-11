@@ -144,7 +144,7 @@ export default class addCandidatoResidente extends Component{
                     <h2>Carrera: {carreraSeleccionada?carreraSeleccionada.nombre : ''}</h2>
                 </Col>
                 <Col xs={24} lg={24}>
-                    <Table bordered title={() => 'Gestión de periodos'} dataSource={periodos} className="full-width" columns={columns} pagination={{ pageSize: 8 }}  scroll={{ x: 1000 }} />
+                    <Table bordered title={() => 'Gestión de periodos '} dataSource={periodos} className="full-width" columns={columns} pagination={{ pageSize: 8 }}  scroll={{ x: 1000 }} />
                 </Col>
                 <FormAddAlumno visible={visible_add_alumno} carrera={carreraSeleccionada} id_periodo={id_periodo} alumnos_rechazados_por_carrera={alumnos_rechazados_por_carrera}/>
             </Row>

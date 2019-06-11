@@ -11,7 +11,7 @@ import moment from 'moment';
 
 
 
-const CreateFormRegistrarAsesoria = Form.create()(
+const CreateFormAddTarea = Form.create()(
     (props => {
         const { visible, onCancel, onCreate, form, carrera, alumnos_rechazados, addToPeriodo} = props;
         const { getFieldDecorator} = form;
@@ -19,7 +19,7 @@ const CreateFormRegistrarAsesoria = Form.create()(
         return(
             <Modal
                 visible={visible}
-                title={`Registrar asesoría`}
+                title={`Registrar tarea`}
                 okText="Guardar"
                 onCancel={onCancel}
                 onOk={onCreate}
@@ -61,7 +61,7 @@ const CreateFormRegistrarAsesoria = Form.create()(
     })
 )
 
-export default class FormRegistrarAsesoria extends Component{
+export default class FormAddTarea extends Component{
     constructor(props){
         super(props);
         this.state = {
@@ -89,6 +89,7 @@ export default class FormRegistrarAsesoria extends Component{
     }
     handleCreate = () => {
         const {proyecto} = this.state
+        console.log("proyecto"+ proyecto)
         const form = this.form;
         form.validateFields((err, values) => {
             if (err) {
@@ -131,7 +132,7 @@ export default class FormRegistrarAsesoria extends Component{
         return(
             <div>
 
-                <CreateFormRegistrarAsesoria
+                <CreateFormAddTarea
                     ref={this.saveFormRef}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}

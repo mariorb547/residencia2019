@@ -1,41 +1,32 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('actividad_general', {
+    return queryInterface.createTable('formatos', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
-      },id_orden: {
-        allowNull: false,
-        type: Sequelize.STRING(10),
       },
-      actividad: {
-        type: Sequelize.STRING(400),
-        allowNull: true,
-      },
-      objetivo: {
-        type: Sequelize.STRING(400),
-        defaultValue: false
-      },
-     entregable: {
-        type: Sequelize.STRING(400),
-        allowNull: true,
-      },
-     
       id_proyecto: {
         type: Sequelize.INTEGER,
         onDelete: 'CASCADE',
-        unique: true,
         allowNull: false,
         references: {
           model: 'Proyectos',
           key: 'id',
-          as: 'id_Proyecto'
+          as: 'id_proyecto'
         }
       },
-       createdAt: {
+      semana: {
+        allowNull: false,
+        type: Sequelize.STRING(20),
+      },
+      url_formato: {
+        type: Sequelize.STRING(250),
+        allowNull: true,
+      },
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE
       },
@@ -46,6 +37,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('actividad_general');
+    return queryInterface.dropTable('formatos');
   }
 };

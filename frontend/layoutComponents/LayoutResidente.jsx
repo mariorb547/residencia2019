@@ -14,7 +14,7 @@ import { getIsAuth } from '../api.jsx';
 import CambiarContrasenia from '../layoutComponents/CambiarContrasenia.jsx';
 import FormJustificacionCancelacion from '../layoutComponents/FormJustificacionCancelacion.jsx';
 import ProyectoDeResidencia from '../alumno/components/ProyectoDeResidencia.jsx';
-import RegistrarAsesoria from '../alumno/components/RegistrarAsesoria.jsx'
+import RevisionSemanal from '../alumno/components/RevisionSemanal.jsx'
 import SeguimientoProyecto from '../alumno/components/SeguimientoProyecto.jsx';
 import Foto from '../jefeDep/Foto.jsx';
 export default class LayoutResidente extends Component {
@@ -87,7 +87,7 @@ export default class LayoutResidente extends Component {
                                 usuario: usuario,
                                 componentRender: {
                                     title: this.logo("Proyecto de residencia"),
-                                    render: <ProyectoDeResidencia proyecto={res.data} />
+                                    render: <ProyectoDeResidencia proyecto={res.data} usuario={usuario}/>
 
                                 }
                             })
@@ -132,7 +132,7 @@ export default class LayoutResidente extends Component {
                         visibleCancelacion: false,
                         componentRender: {
                             title: this.logo("Asesorias"),
-                            render: <RegistrarAsesoria key={uuid.v1()} updateAsesorias={this.updateAsesorias.bind(this)} usuario={usuario} proyecto={res.data} />
+                            render: <RevisionSemanal key={uuid.v1()} updateAsesorias={this.updateAsesorias.bind(this)} usuario={usuario} proyecto={res.data} />
                         }
                     })
                 }
@@ -154,7 +154,7 @@ export default class LayoutResidente extends Component {
                             proyecto: res.data,
                             componentRender: {
                                 title: this.logo("Proyecto de residencia"),
-                                render: <ProyectoDeResidencia proyecto={res.data} />
+                                render: <ProyectoDeResidencia proyecto={res.data} usuario={usuario}/>
                             }
                         })
                     }
@@ -170,7 +170,7 @@ export default class LayoutResidente extends Component {
                             visibleCancelacion: false,
                             componentRender: {
                                 title: this.logo("Asesorias"),
-                                render: <RegistrarAsesoria key={uuid.v1()} updateAsesorias={this.updateAsesorias.bind(this)} usuario={usuario} proyecto={res.data} />
+                                render: <RevisionSemanal key={uuid.v1()} updateAsesorias={this.updateAsesorias.bind(this)} usuario={usuario} proyecto={res.data} />
                             }
                         })
                     }
@@ -178,23 +178,30 @@ export default class LayoutResidente extends Component {
 
 
         } else if (key == 4) {
-            axios.put(`/api/proyecto/seguimientos`, {
+           axios.put(`/api/proyecto/seguimientos`, {
                 id_proyecto: proyecto.id,
                 id_periodo: proyecto.anteproyecto.id_periodo
             }).then(res => {
                 if (res.status === 200) {
-                    this.setState({
-                        componentSelected: key,
-                        visibleCambiarContrasenia: false,
-                        visibleCancelacion: false,
-                        componentRender: {
-                            title: this.logo("Seguimientos"),
-                            render: <SeguimientoProyecto seguimientos={res.data} />
+                    axios.get(`/api/alumno/${usuario.id_alumno}/_proyecto`)
+                    .then(res1 => {
+                        
+                        if (res1.status === 200) {
+                            this.setState({
+                                componentSelected: key,
+                                visibleCambiarContrasenia: false,
+                                visibleCancelacion: false,
+                                componentRender: {
+                                    title: this.logo("Seguimientos"),
+                                    render: <SeguimientoProyecto proyecto={res1.data} seguimientos={res.data} />
+                                }
+                            })
                         }
                     })
+
                 }
             })
-
+            
         } else if (key == 3) { // modal cambiar contraseña
             this.setState({
                 visibleCambiarContrasenia: true,
