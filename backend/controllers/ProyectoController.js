@@ -645,10 +645,11 @@ module.exports.addSolucionRecomendada = (req, res) => {
 
 module.exports.updateRevisionSeguimientoentrega = (req, res) =>{
     const id = req.body.id_seguimiento,
-    estado_seguimiento = req.body.estado;
+    estado_seguimiento = req.body.estado
+    id_proyecto=req.body.id_proyecto;
 seguimiento_proyecto.update(
     {estado_seguimiento},
-    {where: {id: id}}
+    {where: {id_seguimiento: id,id_proyecto}}
 ).then((revision)=>{
     // console.log('success=======>    ', result)
     // console.log()

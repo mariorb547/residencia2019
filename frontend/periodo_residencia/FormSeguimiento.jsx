@@ -36,7 +36,8 @@ export default class RevisionSemanal extends Component {
             visibleShowObservacion: false,
             id_tarea: null,
             tipo_observacion: null,
-            visibleAddObservacion: false
+            visibleAddObservacion: false,
+           
         }
 
     }
@@ -46,17 +47,20 @@ export default class RevisionSemanal extends Component {
             filename_evidencia: nextProps.filename_evidencia,
             proyecto: nextProps.proyecto,
             usuario: nextProps.usuario,
-            seguimiento: nextProps.seguimiento,
+            seguimiento:nextProps.seguimiento,
             usuario: nextProps.usuario,
             dataSource_semanas: nextProps.dataSource_semanas,
             seguimientos: nextProps.seguimientos,
-            numeroSeguimiento: nextProps.numeroSeguimiento
+            numeroSeguimiento: nextProps.numeroSeguimiento,
+            
+            
 
         })
+      
         this.getSemanasActividadesGenerales()
         this.obtenerTareas()
         this.semanas()
-
+        
 
 
     }
@@ -65,12 +69,11 @@ export default class RevisionSemanal extends Component {
         this.getSemanasActividadesGenerales()
         this.obtenerTareas()
         this.semanas()
-
-
+       
 
     }
 
-
+    
     obtenerTareas = () => {
 
         var dataTemEvidencia = []
@@ -455,7 +458,7 @@ export default class RevisionSemanal extends Component {
                
               let evidencias_tareas =this.state.dataSource_tareas;
               evidencias_tareas =evidencias_tareas.filter((tarea) => tarea.fecha_entrega === fecha_entrega && tarea.estado_revision_mensual === "revision");
-              alert("Tares numero: "+evidencias_tareas.length)
+            // alert ("Tares numero: "+evidencias_tareas.length)
               if(evidencias_tareas.length===1){
                   //no hay tareas pendientes se notifca al residente que se ha finalizado la revisión
                  // message.loading('Notificando a residente y asesor de revisión finalizada..', 2.5);
@@ -534,6 +537,7 @@ export default class RevisionSemanal extends Component {
             message.error("No se puede notificar hay observaciones pendientes")
         }
     }
+
 
     expandedRowRenderTareas = (fecha_enetrega, nuevo_numero_semana) => {
         let fecha = fecha_enetrega.props.children
@@ -891,6 +895,8 @@ export default class RevisionSemanal extends Component {
             visibleAddObservacion: false
         })
     }
+   
+    
 
     render() {
 
@@ -943,8 +949,7 @@ export default class RevisionSemanal extends Component {
                             expandedRowRender={record => this.expandedRowRenderTareas(record.fecha_entrega, record.numero_semana)}
                             key="Tabla"
                         />
-
-
+                       
                     </Col>
                 </Row>
                 <Modal
@@ -984,6 +989,3 @@ export default class RevisionSemanal extends Component {
         )
     }
 }
-
-
-

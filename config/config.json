@@ -10,8 +10,8 @@
   },
   "production": {
     "username": "root",
-    "password": "",
-    "database": "testear",
+    "password": "123456",
+    "database": "prueba",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "timezone": "-05:00"

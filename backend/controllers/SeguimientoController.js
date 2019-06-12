@@ -196,7 +196,22 @@ module.exports.obtenerSeguimientos = (req, res) => {
            
     Seguimiento.findAll({ 
          where: {id_periodo},order: [
-            ['fecha_inicial', 'ASC']]
+            ['fecha_inicial', 'ASC']],
+            include:[{model:seguimiento_proyecto, as: 'seguimientos_proyecto'}]
+    }).then(_plan => {
+         res.status(200).json(_plan);
+    }).catch(err => {
+         console.log(err)
+         res.status(406).json({err: err})
+    })
+        
+}
+module.exports.obtenerSeguimientoProyecto = (req, res) => {
+    const id_proyecto = req.params.id_proyecto,
+    id_seguimiento=req.params.id_seguimiento;
+           
+    seguimiento_proyecto.findOne({ 
+         where: {id_proyecto,id_seguimiento}
     }).then(_plan => {
          res.status(200).json(_plan);
     }).catch(err => {

@@ -703,6 +703,10 @@ module.exports =  (app, express, passport) => {
      
     router.route('/seguimientos/obtener_seguimientos/:id_periodo')
          .get(isAuth,SeguimientoController.obtenerSeguimientos)
+        
+    router.route('/seguimientos/obtener_seguimiento_proyectos/:id_proyecto/:id_seguimiento')
+         .get(isAuth,SeguimientoController.obtenerSeguimientoProyecto)
+
 
     router.route('/revision_mensual/updateEstadoTareaAddObservacion')
          .put(isAuth, SeguimientoController.updateEstadoTareaAddObservacion)

@@ -19,7 +19,8 @@ export default class RevisionProyecto extends Component {
             id_seguimiento: -1,
             visible_observacion: false,
             renderSeguimiento:null,
-            seguimiento_selecionado:null
+            seguimiento_selecionado:null,
+            estado_seguimiento:null
 
         }
     }
@@ -29,6 +30,7 @@ export default class RevisionProyecto extends Component {
             usuario: nextProps.usuario,
             id_seguimiento: -1,
             visible_observacion: false,
+            estado_seguimiento:nextProps.estado_seguimiento
 
         })
     }
@@ -74,8 +76,23 @@ export default class RevisionProyecto extends Component {
         })
 
     }
+
     changeSeguimiento = (id_seguimiento) => {
-        alert("id_se "+id_seguimiento)
+        alert("id_se "+id_seguimiento )
+        axios.get(`/api/seguimientos/obtener_seguimiento_proyectos/${this.state.proyecto.id}/${id_seguimiento}`).then(res =>{
+    
+            if(res.status === 200){
+             
+              if(res.data.estado_seguimiento==="cumplio"){
+                  alert("cumplio jajajja")
+                this.setState({ estado_seguimiento:"true"})
+
+              }else {
+                this.setState({ estado_seguimiento:"false"})
+
+              }
+            }
+        })
         axios.get(`/api/seguimientos/obtener_seguimientos/${this.state.proyecto.anteproyecto.id_periodo}`).then(res =>{
 
             if(res.status === 200){
@@ -118,10 +135,35 @@ export default class RevisionProyecto extends Component {
             }
         })
     }
-    handleSeguimiento = (id_seguimiento, check) => {
+    handleSeguimiento1 = (id_seguimiento, check) => {
         axios.put(`/api/proyecto/revision_seguimiento_entrego`, {
             id_seguimiento,
             estado: check == true ? 'cumplio' : 'no cumplio'
+        }).then(res => {
+            if (res.status === 200) {
+                
+                // if (check && numerodeNocumplidos <=1 && (estado === 'cancelado')) {//en dado.....caso que el alumno tenia una mala pero la correguieron pasa activo nuevamente
+                //    this.actulizarEstado(idalumno,'activo')
+                //    message.success('se devio cambiar a activo de nuevo')
+                // } else if(check==false &&  (estado === 'cancelado'  && estado === 'activo')) { /// si es que este en abandonado ya que el sistema lo pondra por default  
+                //     //si esta en abandonado pero el check esta en true entonces pasa a cancelado no puede pasar activo por que pues el abandono al que paso era por que todas estaba mal
+                //     this.actulizarEstado(idalumno,'cancelado')
+                     
+                // } 
+                message.success('Actualizacion correcta')
+                
+            } else {
+                message.error('Error al actualizar la revisión, favor de reportar al administrador.')
+            }
+        })
+    }
+
+    handleSeguimiento = (check) => {
+        axios.put(`/api/proyecto/revision_seguimiento_entrego`, {
+            id_seguimiento:this.state.id_seguimiento,
+            estado: check == true ? 'cumplio' : 'no cumplio',
+            id_proyecto:this.state.proyecto.id
+
         }).then(res => {
             if (res.status === 200) {
                 
@@ -178,7 +220,7 @@ export default class RevisionProyecto extends Component {
 
     }
     render() {
-        const { proyecto, usuario, id_seguimiento, visible_observacion } = this.state;
+        const { proyecto, usuario, id_seguimiento,  estado_seguimiento, visible_observacion } = this.state;
         const currentDate = moment().format('YYYY-MM-DD');
         var auxEstadoEntrante = 0, auxiliarEstadoSaliente = '';
         const situacionResitente = proyecto.anteproyecto.alumno.situacion;
@@ -390,12 +432,14 @@ export default class RevisionProyecto extends Component {
                     <Tabs key="-99" tabPosition="left" defaultActiveKey="-1" onChange={(id_seguimiento) => this.changeSeguimiento(id_seguimiento)}>
 
                         {proyecto.seguimientos_proyecto.map(((seguimiento, index) => {
-                            console.log('seguimiento  '+seguimiento)
+                            //console.log('seguimiento  '+JSON.stringify(seguimiento))
 
                             return (
                                 <TabPane tab={<span><Icon type="schedule" />{`Seguimiento ${index + 1}`}</span>} key={seguimiento.id_seguimiento}>
                                     
                                     {this.state.renderSeguimiento}
+                                   <Switch onChange={(checked) => this.handleSeguimiento(checked)}  defaultChecked={this.state.estado_seguimiento} checkedChildren={"cumplido"} unCheckedChildren={<Icon type="cross" />} />
+                                       
                                 </TabPane>
                             )
                          }))
